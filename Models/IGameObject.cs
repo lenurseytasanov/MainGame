@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace MainGame
+namespace MainGame.Models
 {
     public interface IGameObject
     {
@@ -13,7 +13,7 @@ namespace MainGame
 
         public Vector2 Speed { get; set; }
 
-        public ControlEventArgs.Direction Direction { get; set; }
+        public Direction Direction { get; set; }
 
         public void Update();
     }

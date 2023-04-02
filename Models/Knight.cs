@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace MainGame
+namespace MainGame.Models
 {
     public class Knight : IGameObject
     {
@@ -13,14 +13,18 @@ namespace MainGame
 
         public Vector2 Speed { get; set; }
 
-        public ControlEventArgs.Direction Direction { get; set; } = ControlEventArgs.Direction.Right;
+        public Direction Direction { get; set; } = Direction.Right;
+
+        public float Mass { get; set; } = 1.0f;
 
         public void Update()
         {
             Position += Speed;
-            Direction = Speed.X > 0 ? ControlEventArgs.Direction.Right 
-                : Speed.X < 0 ? ControlEventArgs.Direction.Left : Direction;
-            Speed = Vector2.Zero;
+            Direction = Speed.X > 0 ? Direction.Right
+                : Speed.X < 0 ? Direction.Left : Direction;
+
+            Speed += new Vector2(0, 0.9f) / Mass;
+            Speed = new Vector2(0, Speed.Y);
         }
     }
 }

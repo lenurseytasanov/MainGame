@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace MainGame
 {
-    public class ControlEventArgs
+    public enum Direction
     {
-        public Direction Dir { get; set; }
+        Left,
+        Right,
+        Down,
+        Up
     }
 }

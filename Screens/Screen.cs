@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MainGame
+namespace MainGame.Screens
 {
     public abstract class Screen
     {

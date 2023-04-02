@@ -1,4 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using MainGame.Models;
+using MainGame.Screens;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -9,7 +12,9 @@ namespace MainGame
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private Screen _currentScreen;
+        private Dictionary<string, Screen> _screens;
+
+        private string _currentScreen;
         private PhysicalModel _model;
 
         public GameCycle()
@@ -21,17 +26,25 @@ namespace MainGame
 
         protected override void Initialize()
         {
-            _currentScreen = new GamePlay() { Game = this };
-            var gameplay = _currentScreen as GamePlay;
-            gameplay.Initialize();
+            _screens = new Dictionary<string, Screen>
+            {
+                { "GamePlay", new GamePlay() { Game = this } }
+            };
 
             _model = new PhysicalModel();
             _model.Initialize();
 
-            gameplay.PlayerMoved += (sender, args) => _model.MovePlayer(args.Dir);
-            gameplay.CycleFinished += (sender, args) => _model.Update();
-            _model.Updated += (sender, args) => gameplay.LoadParameters(args.Objects);
+            var gamePlay = _screens["GamePlay"] as GamePlay;
+            gamePlay.PlayerMoved += (sender, args) => _model.MovePlayer(args.Dir);
+            gamePlay.CycleFinished += (sender, args) => _model.Update();
+            _model.Updated += (sender, args) => gamePlay.LoadParameters(args.Objects);
 
+            foreach (var screen in _screens.Values)
+            {
+                screen.Initialize();
+            }
+
+            _currentScreen = "GamePlay";
             base.Initialize();
         }
 
@@ -39,7 +52,10 @@ namespace MainGame
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _currentScreen.LoadContent(_spriteBatch);
+            foreach (var screen in _screens.Values)
+            {
+                screen.LoadContent(_spriteBatch);
+            }
         }
 
         protected override void Update(GameTime gameTime)
@@ -47,14 +63,14 @@ namespace MainGame
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            _currentScreen.Update(gameTime);
+            _screens[_currentScreen].Update(gameTime);
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            _currentScreen.Draw(gameTime);
+            _screens[_currentScreen].Draw(gameTime);
 
             base.Draw(gameTime);
         }

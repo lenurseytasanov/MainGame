@@ -6,21 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MainGame
+namespace MainGame.Sprites
 {
     public class KnightSprite : Sprite
     {
-        public Dictionary<string, Animation> Animations { get; set; }
-
-        public AnimationManager AnimationManager;
-
-        public ControlEventArgs.Direction Direction { get; set; }
-
-        public void SetAnimation(string animationName)
-        {
-            AnimationManager.Play(Animations[animationName]);
-        }
-
         public override void Initialize()
         {
             Animations = new Dictionary<string, Animation>();
