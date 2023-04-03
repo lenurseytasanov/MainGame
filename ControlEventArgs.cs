@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MainGame
 {
-    public class ControlEventArgs
+    public class ControlEventArgs : EventArgs
     {
         public Direction Dir { get; set; }
     }

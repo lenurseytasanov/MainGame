@@ -15,7 +15,11 @@ namespace MainGame.Models
 
         public Vector2 Speed { get; set ; }
 
+        public Vector2 Force { get; set; }
+
         public Direction Direction { get; set; }
+
+        public int SpriteId { get; set; }
 
         public bool IsTouchLeft(Solid other)
         {

@@ -18,12 +18,12 @@ namespace MainGame.Models
         public void Initialize()
         {
             FieldHeight = 300;
-            FieldWidth = 500;
+            FieldWidth = 700;
 
             _objects = new Dictionary<int, IGameObject>
             {
-                { 1, new Knight() { Position = new Vector2(250, 100), Speed = Vector2.Zero } },
-                { 2, new Ground() { Position = new Vector2( -1000, FieldHeight) }}
+                { 1, new Knight() { Position = new Vector2(250, 100), Speed = Vector2.Zero, SpriteId = 1 } },
+                { 2, new Ground() { Position = new Vector2( -1000, FieldHeight), SpriteId = 2 }}
             };
             _playerId = 1; //danger
         }
@@ -34,17 +34,14 @@ namespace MainGame.Models
             switch (direction)
             {
                 case Direction.Left:
-                    player.Forces += new Vector2(-1, 0);
+                    player.Forces += new Vector2(-2, 0);
                     break;
                 case Direction.Right:
-                    player.Forces += new Vector2(1, 0);
+                    player.Forces += new Vector2(2, 0);
                     break;
                 case Direction.Up:
-                    if (player.IsTouchTop(_objects[2] as Solid)) 
-                        player.Forces += new Vector2(0, -20f);
-                    break;
-                case Direction.Down:
-                    player.Forces += new Vector2(0, 1);
+                    if (player.OnGround) 
+                        player.Forces += new Vector2(0, -20);
                     break;
             }
         }
@@ -60,17 +57,36 @@ namespace MainGame.Models
                 {
                     foreach (var other in _objects.Values.OfType<Solid>().Where(other => !other.Equals(gameObject)))
                     {
-                        if (solid.IsTouchBottom(other) ||
-                            solid.IsTouchTop(other)) 
+                        if (solid.IsTouchTop(other))
+                        {
+                            solid.Speed = new Vector2(solid.Speed.X, 0);
+                        }
+                        if (solid.IsTouchBottom(other))
+                        {
+                            while (solid.IsTouchBottom(other))
+                                gameObject.Speed = new Vector2(gameObject.Speed.X, gameObject.Speed.Y + 0.5f);
                             gameObject.Speed = new Vector2(gameObject.Speed.X, 0);
-                        if (solid.IsTouchLeft(other) ||
-                            solid.IsTouchRight(other))
-                            solid.Speed = new Vector2(0, gameObject.Speed.Y);
+                        }
+                        if (solid.IsTouchLeft(other))
+                        {
+                            while (solid.IsTouchLeft(other))
+                                gameObject.Speed = new Vector2(gameObject.Speed.X - 0.5f, gameObject.Speed.Y);
+                            gameObject.Speed = new Vector2(0, gameObject.Speed.Y);
+                        }
+                        if (solid.IsTouchRight(other))
+                        {
+                            while (solid.IsTouchRight(other))
+                                gameObject.Speed = new Vector2(gameObject.Speed.X + 0.5f, gameObject.Speed.Y);
+                            gameObject.Speed = new Vector2(0, gameObject.Speed.Y);
+                        }
+
                     }   
                 }
 
                 gameObject.Update();
             }
+
+            (_objects[_playerId] as Knight)!.OnGround = (_objects[_playerId] as Knight)!.IsTouchTop(_objects[2] as Solid);
 
             Updated?.Invoke(this, new ObjectsEventArgs() { Objects = _objects });
         }

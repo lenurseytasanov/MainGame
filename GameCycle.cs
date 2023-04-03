@@ -26,6 +26,9 @@ namespace MainGame
 
         protected override void Initialize()
         {
+            _graphics.PreferredBackBufferHeight = 430;
+            _graphics.ApplyChanges();
+
             _screens = new Dictionary<string, Screen>
             {
                 { "GamePlay", new GamePlay() { Game = this } }

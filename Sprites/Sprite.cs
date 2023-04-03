@@ -12,13 +12,12 @@ namespace MainGame.Sprites
     {
         public Vector2 Position { get; set; }
 
-        public Direction Direction { get; set; }
-
         public Texture2D Texture { get; set; }
 
-        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        public Action<object, SpriteBatch> Draw { get; set; } = (sender, spriteBatch) =>
         {
-            spriteBatch.Draw(Texture, Position, Color.White);
-        }
+            var o = sender as Sprite;
+            spriteBatch.Draw(o.Texture, o.Position, Color.White);
+        };
     }
 }

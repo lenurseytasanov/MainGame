@@ -28,19 +28,20 @@ namespace MainGame.Sprites
         {
             Animations = new Dictionary<string, Animation>();
             AnimationManager = new AnimationManager();
+            Draw = (sender, spriteBatch) =>
+            {
+                var o = sender as AnimatedSprite;
+                spriteBatch.Draw(
+                    o.AnimationManager.CurrentAnimation.SpriteSheet, o.Position,
+                    o.AnimationManager.CurrentFrame, Color.White,
+                    0, Vector2.Zero, o.AnimationManager.CurrentAnimation.Scale, o.AnimationManager.CurrentAnimation.Effects,
+                    0);
+            };
         }
 
         public virtual void Update(GameTime gameTime)
         {
             AnimationManager.Update(gameTime);
-        }
-
-        public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
-        {
-            spriteBatch.Draw(
-                AnimationManager.CurrentAnimation.SpriteSheet, Position,
-                AnimationManager.CurrentFrame, Color.White,
-                0, Vector2.Zero, AnimationManager.CurrentAnimation.Scale, AnimationManager.CurrentAnimation.Effects, 0);
         }
     }
 }

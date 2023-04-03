@@ -15,6 +15,8 @@ namespace MainGame.Models
 
         public Direction Direction { get; set; }
 
+        public int SpriteId { get; set; }
+
         public void Update();
     }
 }

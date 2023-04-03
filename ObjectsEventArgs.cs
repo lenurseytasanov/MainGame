@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 
 namespace MainGame
 {
-    public class ObjectsEventArgs
+    public class ObjectsEventArgs : EventArgs
     {
         public Dictionary<int, IGameObject> Objects;
     }

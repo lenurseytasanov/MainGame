@@ -13,6 +13,8 @@ namespace MainGame.Models
 
         public Vector2 Forces { get; set; }
 
+        public bool OnGround { get; set; }
+
         public override void Update()
         {
             Position += Speed;
@@ -22,7 +24,7 @@ namespace MainGame.Models
             PhysicalBound = new Rectangle((int)Position.X, (int)Position.Y, 100, 100);
 
             Speed += Forces / Mass;
-            Forces = new Vector2(0, 1f) - Speed * 0.1f;
+            Forces = new Vector2(0, 1f) + new Vector2(-Speed.X, 0) * 0.3f;
         }
     }
 }
