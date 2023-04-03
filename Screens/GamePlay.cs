@@ -24,10 +24,11 @@ namespace MainGame.Screens
             _playerId = 1; //danger
             _sprites = new Dictionary<int, Sprite>
             {
-                { 1, new KnightSprite() }
+                { 1, new KnightSprite() },
+                { 2, new GroundSprite() }
             };
 
-            foreach (var sprite in _sprites.Values)
+            foreach (var sprite in _sprites.Values.OfType<AnimatedSprite>())
             {
                 sprite.Initialize();
             }
@@ -37,21 +38,44 @@ namespace MainGame.Screens
         {
             _spriteBatch = spriteBatch;
 
-            _sprites[1].Animations.Add(
-                "IdleRight", new Animation() { SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Idle"), FrameCount = 4 });
-            _sprites[1].Animations.Add(
-                "IdleLeft", new Animation() { SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Idle"), FrameCount = 4, Effects = SpriteEffects.FlipHorizontally });
-            _sprites[1].Animations.Add(
-                "RunRight", new Animation() { SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Run"), FrameCount = 7 });
-            _sprites[1].Animations.Add(
-                "RunLeft", new Animation() { SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Run"), FrameCount = 7, Effects = SpriteEffects.FlipHorizontally });
+            (_sprites[1] as AnimatedSprite)!.LoadAnimations(new Dictionary<string, Animation>()
+            {
+                {
+                    "IdleRight",
+                    new Animation() { SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Idle"), FrameCount = 4, Scale = 1.5f }
+                },
+                {
+                    "IdleLeft",
+                    new Animation()
+                    {
+                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Idle"), FrameCount = 4,
+                        Effects = SpriteEffects.FlipHorizontally,
+                        Scale = 1.5f
+                    }
+                },
+                {
+                    "RunRight",
+                    new Animation() { SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Run"), FrameCount = 7, Scale = 1.5f  }
+                },
+                {
+                    "RunLeft",
+                    new Animation()
+                    {
+                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Run"), FrameCount = 7,
+                        Effects = SpriteEffects.FlipHorizontally,
+                        Scale = 1.5f
+                    }
+                }
+            });
+
+            _sprites[2].Texture = Game.Content.Load<Texture2D>("ground/rock");
         }
 
         public override void Update(GameTime gameTime)
         {
             var keys = Keyboard.GetState().GetPressedKeys();
 
-            var player = _sprites[_playerId];
+            var player = _sprites[_playerId] as AnimatedSprite;
             player.SetAnimation(player.Direction == Direction.Right ? "IdleRight" : "IdleLeft");
             foreach (var key in keys)
             {
@@ -76,9 +100,9 @@ namespace MainGame.Screens
                 }
             }
 
-            foreach (var sprite in _sprites)
+            foreach (var sprite in _sprites.Values.OfType<AnimatedSprite>())
             {
-                sprite.Value.Update(gameTime);
+                sprite.Update(gameTime);
             }
 
             CycleFinished?.Invoke(this, EventArgs.Empty);
@@ -88,10 +112,12 @@ namespace MainGame.Screens
         {
             Game.GraphicsDevice.Clear(Color.Aqua);
 
-            foreach (var sprite in _sprites)
+            _spriteBatch.Begin(SpriteSortMode.BackToFront);
+            foreach (var sprite in _sprites.Values)
             {
-                sprite.Value.Draw(gameTime, _spriteBatch);
+                sprite.Draw(gameTime, _spriteBatch);
             }
+            _spriteBatch.End();
         }
 
         public void LoadParameters(Dictionary<int, IGameObject> gameObjects)

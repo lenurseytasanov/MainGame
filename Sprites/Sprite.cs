@@ -8,25 +8,17 @@ using System.Threading.Tasks;
 
 namespace MainGame.Sprites
 {
-    public abstract class Sprite
+    public class Sprite
     {
-        public Dictionary<string, Animation> Animations { get; set; }
-
-        public AnimationManager AnimationManager { get; set; }
-
-        public void SetAnimation(string animationName)
-        {
-            AnimationManager.Play(Animations[animationName]);
-        }
-
         public Vector2 Position { get; set; }
 
         public Direction Direction { get; set; }
 
-        public abstract void Initialize();
+        public Texture2D Texture { get; set; }
 
-        public abstract void Update(GameTime gameTime);
-
-        public abstract void Draw(GameTime gameTime, SpriteBatch spriteBatch);
+        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(Texture, Position, Color.White);
+        }
     }
 }

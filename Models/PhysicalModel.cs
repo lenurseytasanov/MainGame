@@ -18,46 +18,56 @@ namespace MainGame.Models
         public void Initialize()
         {
             FieldHeight = 300;
-            FieldWidth = 300;
+            FieldWidth = 500;
 
             _objects = new Dictionary<int, IGameObject>
             {
-                { 1, new Knight() { Position = new Vector2(250, 250), Speed = Vector2.Zero } }
+                { 1, new Knight() { Position = new Vector2(250, 100), Speed = Vector2.Zero } },
+                { 2, new Ground() { Position = new Vector2( -1000, FieldHeight) }}
             };
             _playerId = 1; //danger
         }
 
         public void MovePlayer(Direction direction)
         {
-            var player = _objects[_playerId];
+            var player = _objects[_playerId] as Knight;
             switch (direction)
             {
                 case Direction.Left:
-                    player.Speed += new Vector2(-1, 0);
+                    player.Forces += new Vector2(-1, 0);
                     break;
                 case Direction.Right:
-                    player.Speed += new Vector2(1, 0);
+                    player.Forces += new Vector2(1, 0);
                     break;
                 case Direction.Up:
-                    player.Speed += new Vector2(0, -1);
+                    if (player.IsTouchTop(_objects[2] as Solid)) 
+                        player.Forces += new Vector2(0, -20f);
                     break;
                 case Direction.Down:
-                    player.Speed += new Vector2(0, 1);
+                    player.Forces += new Vector2(0, 1);
                     break;
             }
-
         }
 
         public void Update()
         {
             foreach (var gameObject in _objects.Values)
             {
-                if (gameObject.Position.X + gameObject.Speed.X < 0 ||
-                    gameObject.Position.X + gameObject.Speed.X > FieldWidth)
+                if (gameObject.Speed.X + gameObject.Position.X < 0 ||
+                    gameObject.Speed.X + gameObject.Position.X > FieldWidth)
                     gameObject.Speed = new Vector2(0, gameObject.Speed.Y);
-                if (gameObject.Position.Y + gameObject.Speed.Y < 0 ||
-                    gameObject.Position.Y + gameObject.Speed.Y > FieldHeight)
-                    gameObject.Speed = new Vector2(gameObject.Speed.X, 0);
+                if (gameObject is Solid solid)
+                {
+                    foreach (var other in _objects.Values.OfType<Solid>().Where(other => !other.Equals(gameObject)))
+                    {
+                        if (solid.IsTouchBottom(other) ||
+                            solid.IsTouchTop(other)) 
+                            gameObject.Speed = new Vector2(gameObject.Speed.X, 0);
+                        if (solid.IsTouchLeft(other) ||
+                            solid.IsTouchRight(other))
+                            solid.Speed = new Vector2(0, gameObject.Speed.Y);
+                    }   
+                }
 
                 gameObject.Update();
             }
