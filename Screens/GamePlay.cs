@@ -17,100 +17,27 @@ namespace MainGame.Screens
         private SpriteBatch _spriteBatch;
 
         private int _playerId;
-        private Dictionary<int, Sprite> _sprites;
+
+        private Dictionary<int, Sprite> _sprites = new Dictionary<int, Sprite>();
 
         public override void Initialize()
         {
-            _playerId = 1; //danger
-            _sprites = new Dictionary<int, Sprite>
-            {
-                { 1, new KnightSprite() },
-                { 2, new Sprite() }
-            };
-
             foreach (var sprite in _sprites.Values.OfType<AnimatedSprite>())
             {
                 sprite.Initialize();
             }
-            _sprites[1].Draw = (sender, sb) =>
-            {
-                var o = sender as KnightSprite;
-                sb.Draw(
-                    o.AnimationManager.CurrentAnimation.SpriteSheet,
-                    new Vector2(350, o.Position.Y - 20) +
-                    (o.AnimationManager.CurrentAnimation.Effects == SpriteEffects.FlipHorizontally
-                        ? new Vector2(-90, 0)
-                        : Vector2.Zero),
-                    o.AnimationManager.CurrentFrame, Color.White,
-                    0, Vector2.Zero, o.AnimationManager.CurrentAnimation.Scale,
-                    o.AnimationManager.CurrentAnimation.Effects,
-                    0);
-            };
-            _sprites[2].Draw = (sender, sb) =>
-            {
-                var o = sender as Sprite;
-                var effects = SpriteEffects.None;
-                for (var i = 0; i < 1000; i++)
-                {
-                    sb.Draw(o.Texture, new Vector2(o.Position.X - _sprites[_playerId].Position.X, o.Position.Y), o.Texture.Bounds, Color.White,
-                        0, Vector2.Zero, 1, effects ^= SpriteEffects.FlipHorizontally, 1);
-                    o.Position += new Vector2(o.Texture.Width, 0);
-                }
-            };
         }
 
         public override void LoadContent(SpriteBatch spriteBatch)
         {
             _spriteBatch = spriteBatch;
-
-            (_sprites[1] as AnimatedSprite)!.LoadAnimations(new Dictionary<string, Animation>()
-            {
-                {
-                    "IdleRight",
-                    new Animation() { SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Idle"), FrameCount = 4, Scale = 1.5f }
-                },
-                {
-                    "IdleLeft",
-                    new Animation()
-                    {
-                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Idle"), FrameCount = 4, Scale = 1.5f,
-                        Effects = SpriteEffects.FlipHorizontally
-                    }
-                },
-                {
-                    "RunRight",
-                    new Animation() { SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Run"), FrameCount = 7, Scale = 1.5f  }
-                },
-                {
-                    "RunLeft",
-                    new Animation()
-                    {
-                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Run"), FrameCount = 7, Scale = 1.5f,
-                        Effects = SpriteEffects.FlipHorizontally
-                    }
-                },
-                {
-                    "JumpRight",
-                    new Animation() { SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Jump"), FrameCount = 6, Scale = 1.5f }
-                },
-                {
-                    "JumpLeft",
-                    new Animation() 
-                    { 
-                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Jump"), FrameCount = 6, Scale = 1.5f,
-                        Effects = SpriteEffects.FlipHorizontally
-                    }
-                }
-            });
-            
-
-            _sprites[2].Texture = Game.Content.Load<Texture2D>("ground/rock");
         }
 
         public override void Update(GameTime gameTime)
         {
             var keys = Keyboard.GetState().GetPressedKeys();
 
+            (_sprites[3] as AnimatedSprite).SetAnimation("IdleRight");
             var player = _sprites[_playerId] as KnightSprite;
             if (!player.OnGround)
                 player.SetAnimation(player.Direction == Direction.Right ? "JumpRight" : "JumpLeft");
@@ -156,15 +83,104 @@ namespace MainGame.Screens
             _spriteBatch.End();
         }
 
+        public void LoadStartParameters(Dictionary<int, IGameObject> gameObjects, int playerId)
+        {
+            _playerId = playerId;
+
+            foreach (var o in gameObjects.Where(o => !_sprites.ContainsKey(o.Key)))
+            {
+                switch (o.Value.SpriteId)
+                {
+                    case 1:
+                        _sprites.Add(o.Key, new KnightSprite()
+                        {
+                            Draw = (sender, sb) =>
+                            {
+                                var sprite = sender as AnimatedSprite;
+                                sb.Draw(
+                                    sprite.AnimationManager.CurrentAnimation.SpriteSheet,
+                                    new Vector2(
+                                        o.Key == _playerId ? 350 : 350 + sprite.Position.X - gameObjects[playerId].Position.X,
+                                        sprite.Position.Y - 20) +
+                                    (sprite.AnimationManager.CurrentAnimation.Effects == SpriteEffects.FlipHorizontally
+                                        ? new Vector2(-100, 0)
+                                        : Vector2.Zero),
+                                    sprite.AnimationManager.CurrentFrame, Color.White,
+                                    0, Vector2.Zero, sprite.AnimationManager.CurrentAnimation.Scale,
+                                    sprite.AnimationManager.CurrentAnimation.Effects, 0);
+                            },
+                            Animations = new Dictionary<string, Animation>()
+                            {
+                                {
+                                    "IdleRight",
+                                    new Animation() { SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Idle"), FrameCount = 4, Scale = 1.5f }
+                                },
+                                {
+                                    "IdleLeft",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Idle"), FrameCount = 4, Scale = 1.5f,
+                                        Effects = SpriteEffects.FlipHorizontally
+                                    }
+                                },
+                                {
+                                    "RunRight",
+                                    new Animation() { SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Run"), FrameCount = 7, Scale = 1.5f  }
+                                },
+                                {
+                                    "RunLeft",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Run"), FrameCount = 7, Scale = 1.5f,
+                                        Effects = SpriteEffects.FlipHorizontally
+                                    }
+                                },
+                                {
+                                    "JumpRight",
+                                    new Animation() { SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Jump"), FrameCount = 6, Scale = 1.5f }
+                                },
+                                {
+                                    "JumpLeft",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Jump"), FrameCount = 6, Scale = 1.5f,
+                                        Effects = SpriteEffects.FlipHorizontally
+                                    }
+                                }
+                            }
+                        });
+                        break;
+                    case 2:
+                        _sprites.Add(o.Key, new Sprite()
+                        {
+                            Draw = (sender, sb) =>
+                            {
+                                var sprite = sender as Sprite;
+                                var effects = SpriteEffects.None;
+                                for (var i = 0; i < 1000; i++)
+                                {
+                                    sb.Draw(sprite.Texture, new Vector2(350 + sprite.Position.X - gameObjects[playerId].Position.X, sprite.Position.Y), sprite.Texture.Bounds, Color.White,
+                                        0, Vector2.Zero, 1, effects ^= SpriteEffects.FlipHorizontally, 1);
+                                    sprite.Position += new Vector2(sprite.Texture.Width, 0);
+                                }
+                            },
+                            Texture = Game.Content.Load<Texture2D>("ground/rock")
+                        });
+                        break;
+                }
+            }
+        }
+
         public void LoadParameters(Dictionary<int, IGameObject> gameObjects)
         {
-            foreach (var key in gameObjects.Values.Select(o => o.SpriteId))
+            foreach (var o in gameObjects)
             {
-                _sprites[key].Position = gameObjects[key].Position;
-                if (_sprites[key] is KnightSprite knight)
+                
+                _sprites[o.Key].Position = gameObjects[o.Key].Position;
+                if (_sprites[o.Key] is KnightSprite knight)
                 {
-                    knight.Direction = gameObjects[key].Direction;
-                    knight.OnGround = (gameObjects[key] as Knight).OnGround;
+                    knight.Direction = gameObjects[o.Key].Direction;
+                    knight.OnGround = (gameObjects[o.Key] as Knight).OnGround;
                 }
             }
         }

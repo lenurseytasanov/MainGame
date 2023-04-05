@@ -10,6 +10,8 @@ namespace MainGame
 {
     public class ObjectsEventArgs : EventArgs
     {
-        public Dictionary<int, IGameObject> Objects;
+        public Dictionary<int, IGameObject> Objects { get; set; }
+
+        public int PlayerId { get; set; }
     }
 }

@@ -35,12 +35,14 @@ namespace MainGame
             };
 
             _model = new PhysicalModel();
-            _model.Initialize();
 
             var gamePlay = _screens["GamePlay"] as GamePlay;
             gamePlay.PlayerMoved += (sender, args) => _model.MovePlayer(args.Dir);
             gamePlay.CycleFinished += (sender, args) => _model.Update();
             _model.Updated += (sender, args) => gamePlay.LoadParameters(args.Objects);
+            _model.Initialized += (sender, args) => gamePlay.LoadStartParameters(args.Objects, args.PlayerId);
+
+            _model.Initialize();
 
             foreach (var screen in _screens.Values)
             {

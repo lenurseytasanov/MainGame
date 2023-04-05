@@ -18,10 +18,14 @@ namespace MainGame.Models
         public override void Update()
         {
             Position += Speed;
-            Direction = Speed.X > 0 ? Direction.Right
-                : Speed.X < 0 ? Direction.Left : Direction;
+            Direction = Speed.X switch
+            {
+                > 0 => Direction.Right,
+                < 0 => Direction.Left,
+                _ => Direction
+            };
 
-            PhysicalBound = new Rectangle((int)Position.X, (int)Position.Y, 100, 100);
+            PhysicalBound = new Rectangle((int)Position.X, (int)Position.Y, 50, 100);
 
             Speed += Forces / Mass;
             Forces = new Vector2(0, 1f) + new Vector2(-Speed.X, 0) * 0.3f;

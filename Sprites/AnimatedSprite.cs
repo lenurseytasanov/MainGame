@@ -10,7 +10,7 @@ namespace MainGame.Sprites
 {
     public class AnimatedSprite : Sprite
     {
-        public Dictionary<string, Animation> Animations { get; private set; }
+        public Dictionary<string, Animation> Animations { get; set; }
 
         public AnimationManager AnimationManager { get; set; }
 
@@ -19,16 +19,11 @@ namespace MainGame.Sprites
             AnimationManager.Play(Animations[animationName]);
         }
 
-        public void LoadAnimations(Dictionary<string, Animation> animations)
-        {
-            Animations = animations;
-        }
-
         public virtual void Initialize()
         {
-            Animations = new Dictionary<string, Animation>();
-            AnimationManager = new AnimationManager();
-            Draw = (sender, spriteBatch) =>
+            Animations ??= new Dictionary<string, Animation>();
+            AnimationManager ??= new AnimationManager();
+            Draw ??= (sender, spriteBatch) =>
             {
                 var o = sender as AnimatedSprite;
                 spriteBatch.Draw(

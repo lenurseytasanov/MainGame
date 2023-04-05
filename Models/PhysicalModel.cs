@@ -23,9 +23,12 @@ namespace MainGame.Models
             _objects = new Dictionary<int, IGameObject>
             {
                 { 1, new Knight() { Position = new Vector2(250, 100), Speed = Vector2.Zero, SpriteId = 1 } },
+                { 3, new Knight() { Position = new Vector2(400, 100), Speed = Vector2.Zero, SpriteId = 1 } },
                 { 2, new Ground() { Position = new Vector2( -1000, FieldHeight), SpriteId = 2 }}
             };
             _playerId = 1; //danger
+
+            Initialized?.Invoke(this, new ObjectsEventArgs() {Objects = _objects, PlayerId = _playerId });
         }
 
         public void MovePlayer(Direction direction)
@@ -91,6 +94,7 @@ namespace MainGame.Models
             Updated?.Invoke(this, new ObjectsEventArgs() { Objects = _objects });
         }
 
+        public event EventHandler<ObjectsEventArgs> Initialized;
         public event EventHandler<ObjectsEventArgs> Updated;
     }
 }
