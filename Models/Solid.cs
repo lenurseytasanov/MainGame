@@ -15,8 +15,6 @@ namespace MainGame.Models
 
         public Vector2 Speed { get; set ; }
 
-        public Vector2 Force { get; set; }
-
         public Direction Direction { get; set; }
 
         public int SpriteId { get; set; }
@@ -53,6 +51,6 @@ namespace MainGame.Models
                    this.PhysicalBound.Left < other.PhysicalBound.Right;
         }
 
-        public abstract void Update();
+        public abstract void Update(GameTime gameTime);
     }
 }

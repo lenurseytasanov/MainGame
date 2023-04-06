@@ -13,10 +13,8 @@ namespace MainGame.Models
 
         public Vector2 Speed { get; set; }
 
-        public Direction Direction { get; set; }
-
         public int SpriteId { get; set; }
 
-        public void Update();
+        public void Update(GameTime gameTime);
     }
 }

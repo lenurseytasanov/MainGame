@@ -15,8 +15,26 @@ namespace MainGame.Models
 
         public bool OnGround { get; set; }
 
-        public override void Update()
+        public byte HealthPoints { get; set; } = 10;
+
+        public bool IsAttacking { get; set; }
+
+        public HashSet<Solid> DamagedObjects { get; set; } = new HashSet<Solid>();
+
+        private TimeSpan _attackingTime;
+
+        public override void Update(GameTime gameTime)
         {
+            if (IsAttacking)
+            {
+                _attackingTime += gameTime.ElapsedGameTime;
+                if (_attackingTime > TimeSpan.FromMilliseconds(500))
+                {
+                    IsAttacking = false;
+                    DamagedObjects.Clear();
+                    _attackingTime = TimeSpan.Zero;
+                }
+            }
             Position += Speed;
             Direction = Speed.X switch
             {

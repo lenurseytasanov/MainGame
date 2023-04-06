@@ -13,5 +13,7 @@ namespace MainGame.Sprites
         public Direction Direction { get; set; }
 
         public bool OnGround { get; set; }
+
+        public bool IsAttacking { get; set; }
     }
 }

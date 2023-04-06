@@ -9,9 +9,9 @@ namespace MainGame.Models
 {
     public class Ground : Solid
     {
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
-            PhysicalBound = new Rectangle((int)Position.X, (int)Position.Y, 2000, 100);
+            PhysicalBound = new Rectangle((int)Position.X, (int)Position.Y, 20000, 100);
         }
     }
 }

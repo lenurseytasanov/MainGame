@@ -31,16 +31,16 @@ namespace MainGame
 
             _screens = new Dictionary<string, Screen>
             {
-                { "GamePlay", new GamePlay() { Game = this } }
+                { "GamePlay", new GamePlay() { Game = this, Graphics = _graphics} }
             };
 
             _model = new PhysicalModel();
 
             var gamePlay = _screens["GamePlay"] as GamePlay;
             gamePlay.PlayerMoved += (sender, args) => _model.MovePlayer(args.Dir);
-            gamePlay.CycleFinished += (sender, args) => _model.Update();
-            _model.Updated += (sender, args) => gamePlay.LoadParameters(args.Objects);
-            _model.Initialized += (sender, args) => gamePlay.LoadStartParameters(args.Objects, args.PlayerId);
+            gamePlay.PlayerAttacked += (sender, args) => _model.Attack();
+            gamePlay.CycleFinished += (sender, args) => _model.Update(args.ElapsedTime);
+            _model.Updated += (sender, args) => gamePlay.LoadParameters(args.Objects, args.PlayerId);
 
             _model.Initialize();
 
