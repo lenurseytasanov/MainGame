@@ -7,9 +7,11 @@ using Microsoft.Xna.Framework;
 
 namespace MainGame.Models
 {
-    public interface IGameObject
+    public class StaticSolidObject : IGameObject
     {
         public Vector2 Position { get; set; }
+
+        public Rectangle PhysicalBound { get; set; }
 
         public int SpriteId { get; set; }
     }

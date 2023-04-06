@@ -22,5 +22,7 @@ namespace MainGame.Sprites
         public SpriteEffects Effects { get; set; } = SpriteEffects.None;
 
         public float Scale { get; set; } = 1f;
+
+        public bool IsLooping { get; set; } = true;
     }
 }

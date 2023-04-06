@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MainGame.Models;
 using Microsoft.Xna.Framework;
 
-namespace MainGame
+namespace MainGame.Misc
 {
     public class ObjectsEventArgs : EventArgs
     {

@@ -3,50 +3,46 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MainGame.Misc;
 using Microsoft.Xna.Framework;
 
 namespace MainGame.Models
 {
-    public class Knight : Solid
+    public class Knight : MovingSolidObject
     {
-        public float Mass { get; set; } = 1.0f;
-
-        public Vector2 Forces { get; set; }
-
-        public bool OnGround { get; set; }
-
         public byte HealthPoints { get; set; } = 10;
 
-        public bool IsAttacking { get; set; }
+        public bool IsHurt { get; set; }
 
-        public HashSet<Solid> DamagedObjects { get; set; } = new HashSet<Solid>();
+        public Attack Attack { get; set; }
 
-        private TimeSpan _attackingTime;
+        public HashSet<MovingSolidObject> DamagedObjects { get; set; } = new HashSet<MovingSolidObject>();
+
+        private TimeSpan _elapsedTime;
 
         public override void Update(GameTime gameTime)
         {
-            if (IsAttacking)
+            if (IsHurt)
             {
-                _attackingTime += gameTime.ElapsedGameTime;
-                if (_attackingTime > TimeSpan.FromMilliseconds(500))
+                _elapsedTime += gameTime.ElapsedGameTime;
+                if (_elapsedTime > TimeSpan.FromMilliseconds(500))
                 {
-                    IsAttacking = false;
-                    DamagedObjects.Clear();
-                    _attackingTime = TimeSpan.Zero;
+                    IsHurt = false;
+                    _elapsedTime = TimeSpan.Zero;
                 }
             }
-            Position += Speed;
-            Direction = Speed.X switch
+            if (Attack != Attack.None)
             {
-                > 0 => Direction.Right,
-                < 0 => Direction.Left,
-                _ => Direction
-            };
+                _elapsedTime += gameTime.ElapsedGameTime;
+                if (_elapsedTime > TimeSpan.FromMilliseconds(500))
+                {
+                    Attack = Attack.None;
+                    DamagedObjects.Clear();
+                    _elapsedTime = TimeSpan.Zero;
+                }
+            }
 
-            PhysicalBound = new Rectangle((int)Position.X, (int)Position.Y, 50, 100);
-
-            Speed += Forces / Mass;
-            Forces = new Vector2(0, 1f) + new Vector2(-Speed.X, 0) * 0.3f;
+            base.Update(gameTime);
         }
     }
 }

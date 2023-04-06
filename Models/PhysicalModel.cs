@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MainGame.Misc;
 using Microsoft.Xna.Framework;
 
 namespace MainGame.Models
@@ -12,27 +13,21 @@ namespace MainGame.Models
         private Dictionary<int, IGameObject> _objects;
         private int _playerId;
 
-        //private int FieldWidth;
-        private int FieldHeight;
+        private LevelModel _level;
 
         public void Initialize()
         {
-            FieldHeight = 300;
-
-            _objects = new Dictionary<int, IGameObject>
-            {
-                { 1, new Knight() { Position = new Vector2(250, 100), Speed = Vector2.Zero, SpriteId = 1 } },
-                { 3, new Knight() { Position = new Vector2(400, 100), Speed = Vector2.Zero, SpriteId = 1 } },
-                { 2, new Ground() { Position = new Vector2( -10000, FieldHeight), SpriteId = 2 }}
-            };
-            _playerId = 1;
+            _level = new LevelModel();
+            _level.Initialize();
+            _objects = _level.Objects;
+            _playerId = _level.PlayerId;
 
             Updated?.Invoke(this, new ObjectsEventArgs() { Objects = _objects, PlayerId = _playerId });
         }
 
         public void MovePlayer(Direction direction)
         {
-            var player = _objects[_playerId] as Knight;
+            var player = _objects[_playerId] as MovingSolidObject;
             switch (direction)
             {
                 case Direction.Left:
@@ -42,7 +37,7 @@ namespace MainGame.Models
                     player.Forces += new Vector2(2, 0);
                     break;
                 case Direction.Up:
-                    if (player.OnGround) 
+                    if (player.IsOnGround) 
                         player.Forces += new Vector2(0, -20);
                     break;
             }
@@ -50,58 +45,40 @@ namespace MainGame.Models
 
         public void Attack()
         {
-            (_objects[_playerId] as Knight).IsAttacking = true;
+            var rnd = new Random(DateTime.Now.Millisecond);
+            var knight = _objects[_playerId] as Knight;
+            if (knight.Attack == Misc.Attack.None)
+                knight.Attack = (Attack)rnd.Next(1, 4);
         }
 
         public void Update(GameTime gameTime)
         {
-            foreach (var o in _objects)
+            foreach (var movingObj in _objects.Values.OfType<MovingSolidObject>())
             {
-                if (o.Value is Knight { HealthPoints: <= 0 })
-                    _objects.Remove(o.Key);
+                movingObj.Update(gameTime);
 
-                o.Value.Update(gameTime);
-                if (o.Value is not Solid solid) continue;
-
-                foreach (var otherSolid in _objects.Values.OfType<Solid>().Where(other => !other.Equals(solid)))
+                var onGround = false;
+                foreach (var staticObj in _objects.Values.OfType<StaticSolidObject>())
                 {
-                    if (solid is Knight knight)
-                        knight.OnGround = knight.IsTouchTop(otherSolid);
+                    if (movingObj.IsTouchTop(staticObj))
+                    {
+                        onGround = true;
+                        movingObj.Speed = new Vector2(movingObj.Speed.X, 0);
+                    }
+                }
+                movingObj.IsOnGround = onGround;
 
-                    if (solid is Knight knight1 && otherSolid is Knight knight2)
-                    {
-                        //TODO: replace to IsIntersects
-                        if (knight1.IsAttacking && knight1.PhysicalBound.Intersects(knight2.PhysicalBound) && !knight1.DamagedObjects.Contains(knight2))
-                        {
-                            knight2.HealthPoints -= 2;
-                            knight2.Forces += new Vector2(knight1.Position.X < knight2.Position.X ? 20 : -20, -20);
-                            knight1.DamagedObjects.Add(knight2);
-                        }
-                        continue;
-                    }
-                    if (solid.IsTouchTop(otherSolid))
-                    {
-                        solid.Speed = new Vector2(solid.Speed.X, 0);
-                    }
-                    if (solid.IsTouchBottom(otherSolid))
-                    {
-                        while (solid.IsTouchBottom(otherSolid))
-                            solid.Speed = new Vector2(solid.Speed.X, solid.Speed.Y + 0.5f);
-                        solid.Speed = new Vector2(solid.Speed.X, 0);
-                    }
-                    if (solid.IsTouchLeft(otherSolid))
-                    {
-                        while (solid.IsTouchLeft(otherSolid))
-                            solid.Speed = new Vector2(solid.Speed.X - 0.5f, solid.Speed.Y);
-                        solid.Speed = new Vector2(0, solid.Speed.Y);
-                    }
-                    if (solid.IsTouchRight(otherSolid))
-                    {
-                        while (solid.IsTouchRight(otherSolid))
-                            solid.Speed = new Vector2(solid.Speed.X + 0.5f, solid.Speed.Y);
-                        solid.Speed = new Vector2(0, solid.Speed.Y);
-                    }
+                if (movingObj is not Knight knight || knight.Attack == Misc.Attack.None) continue;
 
+                foreach (var knight1 in _objects.Values.OfType<Knight>().Where(o => !o.Equals(knight)
+                             && o.HealthPoints > 0 
+                             && knight.PhysicalBound.Intersects(o.PhysicalBound) 
+                             && !knight.DamagedObjects.Contains(o)))
+                {
+                    knight1.HealthPoints -= 2;
+                    knight1.IsHurt = true;
+                    knight1.Forces += new Vector2(knight.Position.X < knight1.Position.X ? 40 : -40, -20);
+                    knight.DamagedObjects.Add(knight1);
                 }
             }
 

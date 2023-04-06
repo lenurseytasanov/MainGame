@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MainGame.Misc;
 using MainGame.Models;
 using MainGame.Sprites;
 using Microsoft.Xna.Framework;
@@ -38,9 +39,25 @@ namespace MainGame.Screens
 
             foreach (var o in _sprites.Values.OfType<KnightSprite>())
             {
-                if (o.IsAttacking)
-                    o.SetAnimation(o.Direction == Direction.Right ? "AttackRight" : "AttackLeft");
-                else if (!o.OnGround)
+                if (o.IsDead)
+                    o.SetAnimation(o.Direction == Direction.Right ? "DeadRight" : "DeadLeft");
+                else if (o.IsHurt)
+                    o.SetAnimation(o.Direction == Direction.Right ? "HurtRight" : "HurtLeft");
+                else if (o.Attack != Attack.None)
+                    switch (o.Attack)
+                    {
+                        case Attack.DownSlash:
+                            o.SetAnimation(o.Direction == Direction.Right ? "AttackSlash1Right" : "AttackSlash1Left");
+                            break;
+                        case Attack.UpSlash:
+                            o.SetAnimation(o.Direction == Direction.Right ? "AttackSlash2Right" : "AttackSlash2Left");
+                            break;
+                        case Attack.Pierce:
+                            o.SetAnimation(o.Direction == Direction.Right ? "AttackPierceRight" : "AttackPierceLeft");
+                            break;
+                    }
+                    
+                else if (!o.IsOnGround)
                     o.SetAnimation(o.Direction == Direction.Right ? "JumpRight" : "JumpLeft");
                 else
                     o.SetAnimation(o.Direction == Direction.Right ? "IdleRight" : "IdleLeft");
@@ -52,13 +69,11 @@ namespace MainGame.Screens
                 switch (key)
                 {
                     case Keys.Left:
-                        if (player.OnGround)
-                            player.SetAnimation("RunLeft");
+                        player.SetAnimation(player.Attack == Attack.None ? "RunLeft" : "AttackRunLeft");
                         PlayerMoved?.Invoke(this, new ControlEventArgs() { Dir = Direction.Left });
                         break;
                     case Keys.Right:
-                        if (player.OnGround)
-                            player.SetAnimation("RunRight");
+                        player.SetAnimation(player.Attack == Attack.None ? "RunRight" : "AttackRunRight");
                         PlayerMoved?.Invoke(this, new ControlEventArgs() { Dir = Direction.Right });
                         break;
                     case Keys.Up:
@@ -176,7 +191,7 @@ namespace MainGame.Screens
                                     }
                                 },
                                 {
-                                    "AttackRight",
+                                    "AttackSlash1Right",
                                     new Animation()
                                     {
                                         SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Attack 1"), FrameCount = 5,
@@ -184,14 +199,99 @@ namespace MainGame.Screens
                                     }
                                 },
                                 {
-                                    "AttackLeft",
+                                    "AttackSlash1Left",
                                     new Animation()
                                     {
                                         SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Attack 1"), FrameCount = 5,
                                         Scale = 1.5f,
                                         Effects = SpriteEffects.FlipHorizontally
                                     }
-                                }
+                                },
+                                {
+                                    "AttackSlash2Right",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Attack 2"), FrameCount = 4,
+                                        Scale = 1.5f
+                                    }
+                                },
+                                {
+                                    "AttackSlash2Left",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Attack 2"), FrameCount = 4,
+                                        Scale = 1.5f,
+                                        Effects = SpriteEffects.FlipHorizontally
+                                    }
+                                },
+                                {
+                                    "AttackPierceRight",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Attack 3"), FrameCount = 4,
+                                        Scale = 1.5f
+                                    }
+                                },
+                                {
+                                    "AttackPierceLeft",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Attack 3"), FrameCount = 4,
+                                        Scale = 1.5f,
+                                        Effects = SpriteEffects.FlipHorizontally
+                                    }
+                                },
+                                {
+                                    "AttackRunRight",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Run+Attack"), FrameCount = 6,
+                                        Scale = 1.5f
+                                    }
+                                },
+                                {
+                                    "AttackRunLeft",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Run+Attack"), FrameCount = 6,
+                                        Scale = 1.5f,
+                                        Effects = SpriteEffects.FlipHorizontally
+                                    }
+                                },
+                                {
+                                    "HurtRight",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Hurt"), FrameCount = 2,
+                                        Scale = 1.5f
+                                    }
+                                },
+                                {
+                                    "HurtLeft",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Hurt"), FrameCount = 2,
+                                        Scale = 1.5f,
+                                        Effects = SpriteEffects.FlipHorizontally
+                                    }
+                                },
+                                {
+                                    "DeadRight",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Dead"), FrameCount = 6,
+                                        Scale = 1.5f, IsLooping = false
+                                    }
+                                },
+                                {
+                                    "DeadLeft",
+                                    new Animation()
+                                    {
+                                        SpriteSheet = Game.Content.Load<Texture2D>("Knight_1/Dead"), FrameCount = 6,
+                                        Scale = 1.5f, IsLooping = false,
+                                        Effects = SpriteEffects.FlipHorizontally
+                                    }
+                                },
                             }
                         };
                         sprite.Initialize();
@@ -204,12 +304,9 @@ namespace MainGame.Screens
                             {
                                 var sprite = sender as Sprite;
                                 var effects = SpriteEffects.None;
-                                for (var i = 0; i < 30; i++)
-                                {
-                                    sb.Draw(sprite.Texture, new Vector2(_playerPosition.X + sprite.Position.X - gameObjects[playerId].Position.X, sprite.Position.Y), sprite.Texture.Bounds, Color.White,
-                                        0, Vector2.Zero, 1, effects ^= SpriteEffects.FlipHorizontally, 1);
-                                    sprite.Position += new Vector2(sprite.Texture.Width, 0);
-                                }
+                                sb.Draw(sprite.Texture, new Vector2(_playerPosition.X + sprite.Position.X - gameObjects[playerId].Position.X, sprite.Position.Y), sprite.Texture.Bounds, Color.White,
+                                    0, Vector2.Zero, 1, effects ^= SpriteEffects.FlipHorizontally, 1);
+                                sprite.Position += new Vector2(sprite.Texture.Width, 0);
                             },
                             Texture = Game.Content.Load<Texture2D>("ground/rock")
                         });
@@ -218,17 +315,15 @@ namespace MainGame.Screens
             }
             foreach (var o in gameObjects)
             {
-                if (!_sprites.ContainsKey(o.Key))
-                {
-
-                }
                 _sprites[o.Key].Position = gameObjects[o.Key].Position;
                 if (_sprites[o.Key] is KnightSprite knightSprite)
                 {
                     var knight = gameObjects[o.Key] as Knight;
                     knightSprite.Direction = knight.Direction;
-                    knightSprite.OnGround = knight.OnGround;
-                    knightSprite.IsAttacking = knight.IsAttacking;
+                    knightSprite.IsOnGround = knight.IsOnGround;
+                    knightSprite.Attack = knight.Attack;
+                    knightSprite.IsDead = knight.HealthPoints <= 0;
+                    knightSprite.IsHurt = knight.IsHurt;
                 }
             }
         }

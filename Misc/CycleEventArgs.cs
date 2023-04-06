@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace MainGame.Screens
+namespace MainGame.Misc
 {
     public class CycleEventArgs : EventArgs
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MainGame
+namespace MainGame.Misc
 {
     public enum Direction
     {

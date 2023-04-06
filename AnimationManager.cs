@@ -24,7 +24,6 @@ namespace MainGame
             if (CurrentAnimation != null && CurrentAnimation.Equals(animation)) return;
 
             CurrentAnimation = animation;
-
             CurrentAnimation.Cycle ??= new AnimationCycle()
             {
                 ElapsedTime = TimeSpan.Zero,
@@ -39,8 +38,15 @@ namespace MainGame
             if (CurrentAnimation.Cycle.ElapsedTime > TimePerFrame)
             {
                 CurrentAnimation.Cycle.ElapsedTime = TimeSpan.Zero;
-                CurrentAnimation.Cycle.FrameIndex++;
-                CurrentAnimation.Cycle.FrameIndex %= CurrentAnimation.FrameCount;
+                if (CurrentAnimation.IsLooping)
+                {
+                    CurrentAnimation.Cycle.FrameIndex++;
+                    CurrentAnimation.Cycle.FrameIndex %= CurrentAnimation.FrameCount;
+                }
+                else if (CurrentAnimation.Cycle.FrameIndex + 1 < CurrentAnimation.FrameCount)
+                {
+                    CurrentAnimation.Cycle.FrameIndex++;
+                }
             }
         }
     }

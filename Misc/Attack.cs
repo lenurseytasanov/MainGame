@@ -4,10 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MainGame
+namespace MainGame.Misc
 {
-    public class ControlEventArgs : EventArgs
+    public enum Attack
     {
-        public Direction Dir { get; set; }
+        None,
+        DownSlash,
+        UpSlash,
+        Pierce
     }
 }

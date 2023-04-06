@@ -3,23 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MainGame.Misc;
 using Microsoft.Xna.Framework;
 
 namespace MainGame.Models
 {
-    public abstract class Solid : IGameObject
+    public class MovingSolidObject : IGameObject
     {
-        public Rectangle PhysicalBound { get; set; }
-
         public Vector2 Position { get; set; }
 
-        public Vector2 Speed { get; set ; }
+        public Vector2 Speed { get; set; }
+
+        public Vector2 Forces { get; set; }
+
+        public float Mass { get; set; } = 1.0f;
 
         public Direction Direction { get; set; }
 
+        public Rectangle PhysicalBound { get; set; }
+
         public int SpriteId { get; set; }
 
-        public bool IsTouchLeft(Solid other)
+        public bool IsOnGround { get; set; }
+
+        public bool IsTouchLeft(StaticSolidObject other)
         {
             return PhysicalBound.Right + Speed.X > other.PhysicalBound.Left &&
                    PhysicalBound.Left < other.PhysicalBound.Left &&
@@ -27,7 +34,7 @@ namespace MainGame.Models
                    PhysicalBound.Top < other.PhysicalBound.Bottom;
         }
 
-        public bool IsTouchRight(Solid other)
+        public bool IsTouchRight(StaticSolidObject other)
         {
             return PhysicalBound.Left + Speed.X < other.PhysicalBound.Right &&
                    PhysicalBound.Right > other.PhysicalBound.Right &&
@@ -35,7 +42,7 @@ namespace MainGame.Models
                    PhysicalBound.Top < other.PhysicalBound.Bottom;
         }
 
-        public bool IsTouchTop(Solid other)
+        public bool IsTouchTop(StaticSolidObject other)
         {
             return this.PhysicalBound.Bottom + this.Speed.Y > other.PhysicalBound.Top &&
                    this.PhysicalBound.Top < other.PhysicalBound.Top &&
@@ -43,7 +50,7 @@ namespace MainGame.Models
                    this.PhysicalBound.Left < other.PhysicalBound.Right;
         }
 
-        public bool IsTouchBottom(Solid other)
+        public bool IsTouchBottom(StaticSolidObject other)
         {
             return this.PhysicalBound.Top + this.Speed.Y < other.PhysicalBound.Bottom &&
                    this.PhysicalBound.Bottom > other.PhysicalBound.Bottom &&
@@ -51,6 +58,20 @@ namespace MainGame.Models
                    this.PhysicalBound.Left < other.PhysicalBound.Right;
         }
 
-        public abstract void Update(GameTime gameTime);
+        public virtual void Update(GameTime gameTime)
+        {
+            Position += Speed;
+            Direction = Speed.X switch
+            {
+                > 0 => Direction.Right,
+                < 0 => Direction.Left,
+                _ => Direction
+            };
+
+            Speed += Forces / Mass;
+            Forces = new Vector2(0, 1f) + new Vector2(-Speed.X, 0) * 0.3f;
+
+            PhysicalBound = new Rectangle((int)Position.X, (int)Position.Y, PhysicalBound.Width, PhysicalBound.Height);
+        }
     }
 }
