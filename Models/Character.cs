@@ -12,11 +12,9 @@ namespace MainGame.Models
     {
         public byte HealthPoints { get; set; } = 10;
 
-        public bool IsHurt { get; set; }
+        public int AttackNumber { get; set; }
 
-        public Attack Attack { get; set; }
-
-        public Attack PreviousAttack { get; set; }
+        public int AttackCount { get; set; }
 
         public HashSet<MovingSolidObject> DamagedObjects { get; set; } = new HashSet<MovingSolidObject>();
 
@@ -24,22 +22,24 @@ namespace MainGame.Models
 
         public override void Update(GameTime gameTime)
         {
-            if (IsHurt)
+            if (HealthPoints <= 0)
+                State |= StateCharacter.Dead;
+
+            if ((State & StateCharacter.Hurt) != 0)
             {
                 _elapsedTime += gameTime.ElapsedGameTime;
                 if (_elapsedTime > TimeSpan.FromMilliseconds(500))
                 {
-                    IsHurt = false;
+                    State ^= StateCharacter.Hurt;
                     _elapsedTime = TimeSpan.Zero;
                 }
             }
-            if (Attack != Attack.None)
+            if ((State & StateCharacter.Attacking) != 0)
             {
                 _elapsedTime += gameTime.ElapsedGameTime;
                 if (_elapsedTime > TimeSpan.FromMilliseconds(500))
                 {
-                    PreviousAttack = Attack;
-                    Attack = Attack.None;
+                    State &= ~StateCharacter.Attacking;
                     DamagedObjects.Clear();
                     _elapsedTime = TimeSpan.Zero;
                 }

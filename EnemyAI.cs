@@ -18,10 +18,12 @@ namespace MainGame
         {
             foreach (var o in _objects
                          .Where(o => o.Key != _playerId && o.Value is Character)
-                         .Select(o => (o.Key, o.Value as Character)))
+                         .Select(o => (o.Key, Value: o.Value as Character)))
             {
-                Moved?.Invoke(this, new MoveEventArgs() { Id = o.Key, Speed = 2, Dir = o.Item2.Direction });
-                //Attacked?.Invoke(this, new AttackEventArgs() { Id = o.Key });
+                var chr = o.Value;
+                Moved?.Invoke(this, new MoveEventArgs() { Id = o.Key, Dir = chr.Direction });
+                if (chr.PhysicalBound.Intersects((_objects[_playerId] as Character).PhysicalBound))
+                    Attacked?.Invoke(this, new AttackEventArgs() { Id = o.Key });
             }
             CycleFinished?.Invoke(this, new CycleEventArgs() { ElapsedTime = elapsedTime });
         }

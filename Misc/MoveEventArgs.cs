@@ -10,8 +10,6 @@ namespace MainGame.Misc
     {
         public int Id { get; set; }
 
-        public float Speed { get; set; }
-
         public Direction Dir { get; set; }
     }
 }

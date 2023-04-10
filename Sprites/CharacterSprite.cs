@@ -13,14 +13,8 @@ namespace MainGame.Sprites
     {
         public Direction Direction { get; set; }
 
-        public Attack Attack { get; set; }
+        public int AttackNumber { get; set; }
 
-        public bool IsOnGround { get; set; }
-
-        public bool IsDead { get; set; }
-
-        public bool IsHurt { get; set; }
-
-        public bool IsStanding { get; set; }
+        public StateCharacter State { get; set; }
     }
 }

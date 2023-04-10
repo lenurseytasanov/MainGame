@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MainGame.Misc;
 using MainGame.Models;
 using MainGame.Screens;
 using Microsoft.Xna.Framework;
@@ -60,7 +61,7 @@ namespace MainGame
             var gamePlay = _screens["GamePlay"] as GamePlay;
             gamePlay.LevelWidth = _level.FieldWidth;
             gamePlay.LevelHeight = _level.FieldHeight;
-            gamePlay.Moved += (sender, args) => _physic.Move(args.Id, args.Speed, args.Dir);
+            gamePlay.Moved += (sender, args) => _physic.Move(args.Id, args.Dir);
             gamePlay.Attacked += (sender, args) => _physic.Attack(args.Id);
             gamePlay.CycleFinished += (sender, args) => _enemyAI.Update(args.ElapsedTime);
 
@@ -81,7 +82,7 @@ namespace MainGame
         {
             _enemyAI.CycleFinished += (sender, args) => _physic.Update(args.ElapsedTime);
             _enemyAI.Attacked += (sender, args) => _physic.Attack(args.Id);
-            _enemyAI.Moved += (sender, args) => _physic.Move(args.Id, args.Speed, args.Dir);
+            _enemyAI.Moved += (sender, args) => _physic.Move(args.Id, args.Dir);
         }
 
         protected override void LoadContent()

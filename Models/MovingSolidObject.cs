@@ -14,6 +14,10 @@ namespace MainGame.Models
 
         public Rectangle Size { get; set; }
 
+        public int SpriteId { get; set; }
+
+        public StateCharacter State { get; set; }
+
         public Vector2 Speed { get; set; }
 
         public Vector2 Forces { get; set; }
@@ -23,10 +27,6 @@ namespace MainGame.Models
         public Direction Direction { get; set; }
 
         public Rectangle PhysicalBound { get; set; }
-
-        public int SpriteId { get; set; }
-
-        public bool IsOnGround { get; set; }
 
         public bool IsTouchLeft(StaticSolidObject other)
         {
@@ -62,6 +62,11 @@ namespace MainGame.Models
 
         public virtual void Update(GameTime gameTime)
         {
+            if (Math.Abs(Speed.X) < 1)
+                State |= StateCharacter.Standing;
+            else 
+                State &= ~StateCharacter.Standing;
+
             Position += new Vector2((int)Speed.X, (int)Speed.Y);
             Direction = Speed.X switch
             {
@@ -71,9 +76,9 @@ namespace MainGame.Models
             };
             PhysicalBound = new Rectangle(PhysicalBound.X + (int)Speed.X, PhysicalBound.Y + (int)Speed.Y, PhysicalBound.Width, PhysicalBound.Height);
             Speed += Forces / Mass;
-            Forces = new Vector2(0, Mass);
-            if (IsOnGround)
-                Forces += new Vector2(-Speed.X * 0.5f, 0);
+            Forces = Vector2.Zero;
+            Forces += new Vector2(0, 1f) * Mass; // gravity
+            Forces += new Vector2(-Speed.X * 0.6f, 0); // resistance
         }
     }
 }

@@ -24,6 +24,8 @@ namespace MainGame.Screens
 
         private int _playerId;
 
+        private Dictionary<int, int> _spriteTypeToId = new Dictionary<int, int>();
+
         private Dictionary<int, Sprite> _sprites = new Dictionary<int, Sprite>();
         private Vector2 _playerPosition;
 
@@ -59,33 +61,50 @@ namespace MainGame.Screens
         {
             var keys = Keyboard.GetState().GetPressedKeys();
 
-            foreach (var o in _sprites.Values.OfType<CharacterSprite>())
+            foreach (var pair in _sprites.Where(pair => pair.Value is CharacterSprite))
             {
-                if (o.IsDead)
+                var o = pair.Value as CharacterSprite;
+                if ((o.State & StateCharacter.Dead) != 0)
                     o.SetAnimation(o.Direction == Direction.Right ? "DeadRight" : "DeadLeft");
-                else if (o.IsHurt)
+                else if ((o.State & StateCharacter.Hurt) != 0)
                     o.SetAnimation(o.Direction == Direction.Right ? "HurtRight" : "HurtLeft");
-                else if (o.Attack != Attack.None && o.IsStanding)
-                    switch (o.Attack)
-                    {
-                        case Attack.DownSlash:
-                            o.SetAnimation(o.Direction == Direction.Right ? "AttackSlash1Right" : "AttackSlash1Left");
-                            break;
-                        case Attack.UpSlash:
-                            o.SetAnimation(o.Direction == Direction.Right ? "AttackSlash2Right" : "AttackSlash2Left");
-                            break;
-                        case Attack.Pierce:
-                            o.SetAnimation(o.Direction == Direction.Right ? "AttackPierceRight" : "AttackPierceLeft");
-                            break;
-                    }
-                else if (!o.IsOnGround)
+                else if ((o.State & StateCharacter.OnGround) == 0)
                     o.SetAnimation(o.Direction == Direction.Right ? "JumpRight" : "JumpLeft");
-                else if (!o.IsStanding && o.Attack != Attack.None)
-                    o.SetAnimation(o.Direction == Direction.Right ? "AttackRunRight" : "AttackRunLeft");
-                else if (!o.IsStanding)
+                else if ((o.State & StateCharacter.Standing) == 0)
                     o.SetAnimation(o.Direction == Direction.Right ? "RunRight" : "RunLeft");
                 else
                     o.SetAnimation(o.Direction == Direction.Right ? "IdleRight" : "IdleLeft");
+                switch (_spriteTypeToId[pair.Key])
+                {
+                    case 1:
+                        if ((o.State & StateCharacter.Standing) != 0 && (o.State & StateCharacter.Attacking) != 0)
+                            switch (o.AttackNumber)
+                            {
+                                case 0:
+                                    o.SetAnimation(o.Direction == Direction.Right ? "AttackSlash1Right" : "AttackSlash1Left");
+                                    break;
+                                case 1:
+                                    o.SetAnimation(o.Direction == Direction.Right ? "AttackSlash2Right" : "AttackSlash2Left");
+                                    break;
+                                case 2:
+                                    o.SetAnimation(o.Direction == Direction.Right ? "AttackPierceRight" : "AttackPierceLeft");
+                                    break;
+                            }
+                        else if ((o.State & StateCharacter.Attacking) != 0)
+                            o.SetAnimation(o.Direction == Direction.Right ? "AttackRunRight" : "AttackRunLeft");
+                        break;
+                    case 2:
+                        if ((o.State & StateCharacter.Standing) != 0 && (o.State & StateCharacter.Attacking) != 0)
+                            switch (o.AttackNumber)
+                            {
+                                case 0:
+                                    o.SetAnimation(o.Direction == Direction.Right ? "Attack1Right" : "Attack1Left");
+                                    break;
+                            }
+                        else if ((o.State & StateCharacter.Attacking) != 0)
+                            o.SetAnimation(o.Direction == Direction.Right ? "AttackRunRight" : "AttackRunLeft");
+                        break;
+                }
             }
 
             foreach (var key in keys)
@@ -93,10 +112,10 @@ namespace MainGame.Screens
                 switch (key)
                 {
                     case Keys.Left:
-                        Moved?.Invoke(this, new MoveEventArgs() { Id = _playerId, Speed = 5, Dir = Direction.Left });
+                        Moved?.Invoke(this, new MoveEventArgs() { Id = _playerId, Dir = Direction.Left });
                         break;
                     case Keys.Right:
-                        Moved?.Invoke(this, new MoveEventArgs() { Id = _playerId, Speed = 5, Dir = Direction.Right });
+                        Moved?.Invoke(this, new MoveEventArgs() { Id = _playerId, Dir = Direction.Right });
                         break;
                     case Keys.Up:
                         Moved?.Invoke(this, new MoveEventArgs() { Id = _playerId, Dir = Direction.Up });
@@ -149,11 +168,12 @@ namespace MainGame.Screens
                                 sb.Draw(
                                     sprite.AnimationManager.CurrentAnimation.SpriteSheet,
                                     new Rectangle(
-                                        shiftOnPlayer + (int)sprite.Position.X
-                                                      + (sprite.AnimationManager.CurrentAnimation.Effects ==
-                                                         SpriteEffects.FlipHorizontally
-                                                          ? -50
-                                                          : 50),
+                                        shiftOnPlayer + (int)sprite.Position.X + 
+                                        (o.Value.SpriteId == 1 
+                                            ? (sprite.AnimationManager.CurrentAnimation.Effects == SpriteEffects.FlipHorizontally
+                                                ? -50
+                                                : 50) 
+                                            : 0),
                                         (int)sprite.Position.Y,
                                         sprite.Size.Width, sprite.Size.Height),
                                     sprite.AnimationManager.CurrentFrame, Color.White,
@@ -396,10 +416,26 @@ namespace MainGame.Screens
                                             Effects = SpriteEffects.FlipHorizontally
                                         }
                                     },
+                                    {
+                                        "Attack1Right",
+                                        new Animation()
+                                        {
+                                            SpriteSheet = Game.Content.Load<Texture2D>("Orc/Orc_Berserk/Attack_1"), FrameCount = 4,
+                                        }
+                                    },
+                                    {
+                                        "Attack1Left",
+                                        new Animation()
+                                        {
+                                            SpriteSheet = Game.Content.Load<Texture2D>("Orc/Orc_Berserk/Attack_1"), FrameCount = 4,
+                                            Effects = SpriteEffects.FlipHorizontally
+                                        }
+                                    },
                                 }
                             }
                         };
                         sprite.Initialize();
+                        _spriteTypeToId.Add(o.Key, o.Value.SpriteId);
                         _sprites.Add(o.Key, sprite);
                         break;
                     case >= 12:
@@ -446,11 +482,8 @@ namespace MainGame.Screens
                 {
                     var chr = gameObjects[o.Key] as Character;
                     chrSpr.Direction = chr.Direction;
-                    chrSpr.IsOnGround = chr.IsOnGround;
-                    chrSpr.Attack = chr.Attack;
-                    chrSpr.IsDead = chr.HealthPoints <= 0;
-                    chrSpr.IsHurt = chr.IsHurt;
-                    chrSpr.IsStanding = Math.Abs(chr.Speed.X) < 1e-1;
+                    chrSpr.State = chr.State;
+                    chrSpr.AttackNumber = chr.AttackNumber;
                 }
             }
         }
