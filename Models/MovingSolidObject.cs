@@ -12,6 +12,8 @@ namespace MainGame.Models
     {
         public Vector2 Position { get; set; }
 
+        public Rectangle Size { get; set; }
+
         public Vector2 Speed { get; set; }
 
         public Vector2 Forces { get; set; }
@@ -60,18 +62,18 @@ namespace MainGame.Models
 
         public virtual void Update(GameTime gameTime)
         {
-            Position += Speed;
+            Position += new Vector2((int)Speed.X, (int)Speed.Y);
             Direction = Speed.X switch
             {
                 > 0 => Direction.Right,
                 < 0 => Direction.Left,
                 _ => Direction
             };
-
+            PhysicalBound = new Rectangle(PhysicalBound.X + (int)Speed.X, PhysicalBound.Y + (int)Speed.Y, PhysicalBound.Width, PhysicalBound.Height);
             Speed += Forces / Mass;
-            Forces = new Vector2(0, 1f) + new Vector2(-Speed.X, 0) * 0.3f;
-
-            PhysicalBound = new Rectangle((int)Position.X, (int)Position.Y, PhysicalBound.Width, PhysicalBound.Height);
+            Forces = new Vector2(0, Mass);
+            if (IsOnGround)
+                Forces += new Vector2(-Speed.X * 0.5f, 0);
         }
     }
 }

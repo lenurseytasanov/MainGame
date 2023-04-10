@@ -12,6 +12,8 @@ namespace MainGame.Sprites
     {
         public Vector2 Position { get; set; }
 
+        public Rectangle Size { get; set; }
+
         public Texture2D Texture { get; set; }
 
         public Action<object, SpriteBatch> Draw { get; set; } = (sender, spriteBatch) =>

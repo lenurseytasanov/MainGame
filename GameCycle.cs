@@ -15,7 +15,10 @@ namespace MainGame
         private Dictionary<string, Screen> _screens;
 
         private string _currentScreen;
-        private PhysicalModel _model;
+
+        private EnemyAI _enemyAI;
+        private PhysicalModel _physic;
+        private LevelModel _level;
 
         public GameCycle()
         {
@@ -26,31 +29,59 @@ namespace MainGame
 
         protected override void Initialize()
         {
-            _graphics.PreferredBackBufferHeight = 430;
+            _graphics.PreferredBackBufferHeight = 720;
+            _graphics.PreferredBackBufferWidth = 1280;
             _graphics.ApplyChanges();
 
+            _enemyAI = new EnemyAI();
+            _physic = new PhysicalModel();
+            _level = new LevelModel();
             _screens = new Dictionary<string, Screen>
             {
-                { "GamePlay", new GamePlay() { Game = this, Graphics = _graphics} }
+                { "GamePlay", new GamePlay() { Game = this, Graphics = _graphics } }
             };
 
-            _model = new PhysicalModel();
+            InitializeLevel();
+            InitializePhysic();
+            InitializeAI();
+            InitializeScreens();
 
+            _currentScreen = "GamePlay";
+            base.Initialize();
+        }
+
+        private void InitializeLevel()
+        {
+            _level.Initialize();
+        }
+
+        private void InitializeScreens()
+        {
             var gamePlay = _screens["GamePlay"] as GamePlay;
-            gamePlay.PlayerMoved += (sender, args) => _model.MovePlayer(args.Dir);
-            gamePlay.PlayerAttacked += (sender, args) => _model.Attack();
-            gamePlay.CycleFinished += (sender, args) => _model.Update(args.ElapsedTime);
-            _model.Updated += (sender, args) => gamePlay.LoadParameters(args.Objects, args.PlayerId);
-
-            _model.Initialize();
+            gamePlay.LevelWidth = _level.FieldWidth;
+            gamePlay.LevelHeight = _level.FieldHeight;
+            gamePlay.Moved += (sender, args) => _physic.Move(args.Id, args.Speed, args.Dir);
+            gamePlay.Attacked += (sender, args) => _physic.Attack(args.Id);
+            gamePlay.CycleFinished += (sender, args) => _enemyAI.Update(args.ElapsedTime);
 
             foreach (var screen in _screens.Values)
             {
                 screen.Initialize();
             }
+        }
 
-            _currentScreen = "GamePlay";
-            base.Initialize();
+        private void InitializePhysic()
+        {
+            _physic.Updated += (sender, args) => (_screens["GamePlay"] as GamePlay)!.LoadParameters(args.Objects, args.PlayerId);
+            _physic.Updated += (sender, args) => _enemyAI.LoadParameters(args.Objects, args.PlayerId);
+            _physic.Initialize(_level);
+        }
+
+        private void InitializeAI()
+        {
+            _enemyAI.CycleFinished += (sender, args) => _physic.Update(args.ElapsedTime);
+            _enemyAI.Attacked += (sender, args) => _physic.Attack(args.Id);
+            _enemyAI.Moved += (sender, args) => _physic.Move(args.Id, args.Speed, args.Dir);
         }
 
         protected override void LoadContent()

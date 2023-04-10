@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using MainGame.Misc;
@@ -10,79 +11,89 @@ namespace MainGame.Models
 {
     public class PhysicalModel
     {
-        private Dictionary<int, IGameObject> _objects;
+        public Dictionary<int, IGameObject> Objects { get; private set; }
         private int _playerId;
 
         private LevelModel _level;
 
-        public void Initialize()
+        public void Initialize(LevelModel level)
         {
-            _level = new LevelModel();
-            _level.Initialize();
-            _objects = _level.Objects;
+            _level = level;
+            Objects = _level.Objects;
             _playerId = _level.PlayerId;
 
-            Updated?.Invoke(this, new ObjectsEventArgs() { Objects = _objects, PlayerId = _playerId });
+            Updated?.Invoke(this, new ObjectsEventArgs() { Objects = Objects, PlayerId = _playerId });
         }
 
-        public void MovePlayer(Direction direction)
+        public void Move(int id, float speed, Direction direction)
         {
-            var player = _objects[_playerId] as MovingSolidObject;
+            var player = Objects[id] as MovingSolidObject;
+            if (player is Character { HealthPoints: <= 0 }) return; 
             switch (direction)
             {
                 case Direction.Left:
-                    player.Forces += new Vector2(-2, 0);
+                    if (player.IsOnGround)
+                        player.Forces += new Vector2(-speed, 0);
+                    else
+                        player.Forces += new Vector2(-speed / 10, 0);
                     break;
                 case Direction.Right:
-                    player.Forces += new Vector2(2, 0);
+                    if (player.IsOnGround)
+                        player.Forces += new Vector2(speed, 0);
+                    else
+                        player.Forces += new Vector2(speed / 10, 0);
                     break;
                 case Direction.Up:
-                    if (player.IsOnGround) 
+                    if (player.IsOnGround)
                         player.Forces += new Vector2(0, -20);
                     break;
             }
         }
 
-        public void Attack()
+        public void Attack(int id)
         {
-            var rnd = new Random(DateTime.Now.Millisecond);
-            var knight = _objects[_playerId] as Knight;
-            if (knight.Attack == Misc.Attack.None)
-                knight.Attack = (Attack)rnd.Next(1, 4);
+            var chr = Objects[id] as Character;
+            chr.Attack = (Attack)(1 + ((int)chr.PreviousAttack + 1) % (Enum.GetNames(typeof(Attack)).Length - 1));
         }
 
         public void Update(GameTime gameTime)
         {
-            foreach (var movingObj in _objects.Values.OfType<MovingSolidObject>())
+            foreach (var movingObj in Objects.Values.OfType<MovingSolidObject>())
             {
                 movingObj.Update(gameTime);
 
                 var onGround = false;
-                foreach (var staticObj in _objects.Values.OfType<StaticSolidObject>())
+                foreach (var staticObj in Objects.Values.OfType<StaticSolidObject>())
                 {
                     if (movingObj.IsTouchTop(staticObj))
                     {
                         onGround = true;
                         movingObj.Speed = new Vector2(movingObj.Speed.X, 0);
                     }
+                    if (movingObj.IsTouchBottom(staticObj))
+                        movingObj.Speed = new Vector2(movingObj.Speed.X, 0);
+                    if (movingObj.IsTouchLeft(staticObj))
+                        movingObj.Speed = new Vector2(0, movingObj.Speed.Y);
+                    if (movingObj.IsTouchRight(staticObj))
+                        movingObj.Speed = new Vector2(0, movingObj.Speed.Y);
                 }
                 movingObj.IsOnGround = onGround;
 
-                if (movingObj is not Knight knight || knight.Attack == Misc.Attack.None) continue;
+                if (movingObj is not Character chr || chr.Attack == Misc.Attack.None) continue;
 
-                foreach (var knight1 in _objects.Values.OfType<Knight>().Where(o => !o.Equals(knight)
+                foreach (var chr1 in Objects.Values.OfType<Character>().Where(o => !o.Equals(chr)
                              && o.HealthPoints > 0 
-                             && knight.PhysicalBound.Intersects(o.PhysicalBound) 
-                             && !knight.DamagedObjects.Contains(o)))
+                             && chr.PhysicalBound.Intersects(o.PhysicalBound) 
+                             && !chr.DamagedObjects.Contains(o)))
                 {
-                    knight1.HealthPoints -= 2;
-                    knight1.IsHurt = true;
-                    knight1.Forces += new Vector2(knight.Position.X < knight1.Position.X ? 40 : -40, -20);
-                    knight.DamagedObjects.Add(knight1);
+                    chr1.HealthPoints -= 2;
+                    chr1.IsHurt = true;
+                    chr1.Forces += new Vector2(chr.Position.X < chr1.Position.X ? 5 : -10, -10);
+                    chr.DamagedObjects.Add(chr1);
                 }
             }
 
-            Updated?.Invoke(this, new ObjectsEventArgs() { Objects = _objects, PlayerId = _playerId });
+            Updated?.Invoke(this, new ObjectsEventArgs() { Objects = Objects, PlayerId = _playerId });
         }
 
         public event EventHandler<ObjectsEventArgs> Updated;

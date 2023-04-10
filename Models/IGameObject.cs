@@ -11,6 +11,8 @@ namespace MainGame.Models
     {
         public Vector2 Position { get; set; }
 
+        public Rectangle Size { get; set; }
+
         public int SpriteId { get; set; }
     }
 }
