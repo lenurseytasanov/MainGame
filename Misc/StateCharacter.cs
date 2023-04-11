@@ -12,7 +12,7 @@ namespace MainGame.Misc
         None = 0,
         Dead = 1 << 1,
         Hurt = 1 << 2,
-        OnGround = 1 << 3,
+        Flying = 1 << 3,
         Attacking = 1 << 4,
         Standing = 1 << 5,
     }

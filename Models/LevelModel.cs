@@ -34,7 +34,7 @@ namespace MainGame.Models
 
         public void Initialize()
         {
-            _tiles = _loadManager.LoadLevel("../../../log/level1.txt");
+            _tiles = _loadManager.LoadLevel("../../../Sources/Levels/level1.txt");
             _rows = _tiles.GetLength(0);
             _columns = _tiles.GetLength(1);
 
@@ -61,7 +61,7 @@ namespace MainGame.Models
                 Position = new Vector2(i * _tileSize, j * _tileSize),
                 Speed = Vector2.Zero,
                 SpriteId = 2,
-                HealthPoints = 100,
+                HealthPoints = 1,
                 AttackCount = 1,
                 PhysicalBound = new Rectangle(i * _tileSize + _tileSize * 2 / 3, j * _tileSize + _tileSize * 2 / 3, _tileSize * 2 / 3, _tileSize * 4 / 3),
                 Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize * 2, _tileSize * 2)

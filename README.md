@@ -1,1 +1,2 @@
-# MainGame
+<, >, ^, v - moving
+A - attacking

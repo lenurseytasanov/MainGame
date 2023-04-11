@@ -38,7 +38,7 @@ namespace MainGame.Models
                     player.Forces += new Vector2(4f, 0);
                     break;
                 case Direction.Up:
-                    if ((player.State & StateCharacter.OnGround) != 0)
+                    if ((player.State & StateCharacter.Flying) == 0)
                         player.Forces += new Vector2(0, -20);
                     break;
             }
@@ -47,7 +47,8 @@ namespace MainGame.Models
         public void Attack(int id)
         {
             var chr = Objects[id] as Character;
-            if ((chr.State & StateCharacter.Attacking) == 0)
+            if ((chr.State & StateCharacter.Attacking) == 0 &&
+                (chr.State & StateCharacter.Dead) == 0)
             {
                 chr.State |= StateCharacter.Attacking;
                 chr.AttackNumber++;
@@ -61,12 +62,12 @@ namespace MainGame.Models
             {
                 movingObj.Update(gameTime);
 
-                var onGround = false;
+                var flying = true;
                 foreach (var staticObj in Objects.Values.OfType<StaticSolidObject>())
                 {
                     if (movingObj.IsTouchTop(staticObj))
                     {
-                        onGround = true;
+                        flying = false;
                         movingObj.Speed = new Vector2(movingObj.Speed.X, 0);
                     }
                     if (movingObj.IsTouchBottom(staticObj))
@@ -77,22 +78,21 @@ namespace MainGame.Models
                         movingObj.Speed = new Vector2(1, movingObj.Speed.Y);
                 }
 
-                if (onGround)
-                    movingObj.State |= StateCharacter.OnGround;
+                if (flying)
+                    movingObj.State |= StateCharacter.Flying;
                 else
-                    movingObj.State &= ~StateCharacter.OnGround;
+                    movingObj.State &= ~StateCharacter.Flying;
 
                 if (movingObj is not Character chr || (chr.State & StateCharacter.Attacking) == 0) continue;
 
                 foreach (var chr1 in Objects.Values.OfType<Character>().Where(o => !o.Equals(chr)
-                             && o.HealthPoints > 0 
-                             && chr.PhysicalBound.Intersects(o.PhysicalBound) 
-                             && !chr.DamagedObjects.Contains(o)))
+                             && (o.State & StateCharacter.Dead) == 0
+                             && (o.State & StateCharacter.Hurt) == 0
+                             && chr.PhysicalBound.Intersects(o.PhysicalBound)))
                 {
                     chr1.HealthPoints -= 2;
                     chr1.State |= StateCharacter.Hurt;
                     chr1.Forces += new Vector2(chr1.Direction == Direction.Right ? 5 : -10, -10);
-                    chr.DamagedObjects.Add(chr1);
                 }
             }
 

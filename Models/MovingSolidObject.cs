@@ -62,7 +62,8 @@ namespace MainGame.Models
 
         public virtual void Update(GameTime gameTime)
         {
-            if (Math.Abs(Speed.X) < 1)
+            if (Math.Abs(Speed.X) < 1 &&
+                ((State & StateCharacter.Dead) == 0))
                 State |= StateCharacter.Standing;
             else 
                 State &= ~StateCharacter.Standing;
