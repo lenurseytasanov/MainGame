@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using MainGame.Misc;
@@ -8,7 +9,7 @@ using Microsoft.Xna.Framework;
 
 namespace MainGame.Models
 {
-    public class MovingSolidObject : IGameObject
+    public class MovingSolidObject : IGameObject, IDamaging
     {
         public Vector2 Position { get; set; }
 
@@ -29,6 +30,10 @@ namespace MainGame.Models
         public Direction Direction { get; set; }
 
         public Rectangle PhysicalBound { get; set; }
+
+        public Rectangle HitBox { get; set; }
+
+        public int Damage { get; set; } = 2;
 
         public bool IsTouchLeft(StaticSolidObject other)
         {
@@ -78,6 +83,7 @@ namespace MainGame.Models
                 _ => Direction
             };
             PhysicalBound = new Rectangle(PhysicalBound.X + (int)Speed.X, PhysicalBound.Y + (int)Speed.Y, PhysicalBound.Width, PhysicalBound.Height);
+            HitBox = PhysicalBound;
             Speed += Forces / Mass;
             Forces = Vector2.Zero;
             Forces += new Vector2(0, 1f) * Mass; // gravity

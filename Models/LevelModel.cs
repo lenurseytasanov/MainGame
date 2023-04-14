@@ -80,13 +80,19 @@ namespace MainGame.Models
                 PhysicalBound = new Rectangle(i * _tileSize + _tileSize * 2 / 3, j * _tileSize + _tileSize * 2 / 3, _tileSize * 2 / 3, _tileSize * 4 / 3),
                 Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize * 2, _tileSize * 2)
             },
+            'D' => new StaticGhostObject()
+            {
+                Position = new Vector2(i * _tileSize, j * _tileSize),
+                SpriteId = 13,
+                HitBox = new Rectangle(i * _tileSize, j * _tileSize + _tileSize / 4, _tileSize, _tileSize * 3 / 4),
+                Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize, _tileSize),
+            },
             _ => new StaticSolidObject()
             {
                 Position = new Vector2(i * _tileSize, j * _tileSize),
                 SpriteId = sign switch
                 {
                     'U' => 12,
-                    'D' => 13,
                     'G' => 14,
                     'L' => 15,
                     'R' => 16,

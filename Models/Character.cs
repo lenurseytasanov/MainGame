@@ -39,7 +39,7 @@ namespace MainGame.Models
                     _elapsedTime = TimeSpan.Zero;
                 }
             }
-            if (HealthPoints <= 0)
+            if (HealthPoints == 0)
                 State |= StateCharacter.Dead;
 
             base.Update(gameTime);

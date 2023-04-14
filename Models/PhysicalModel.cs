@@ -98,16 +98,25 @@ namespace MainGame.Models
                 else
                     movingObj.State &= ~StateCharacter.Flying;
 
-                if (movingObj is not Character chr || (chr.State & StateCharacter.Attacking) == 0) continue;
+                if (movingObj is not Character chr || 
+                    (chr.State & StateCharacter.Dead) != 0 ||
+                    (chr.State & StateCharacter.Hurt) != 0)
+                    continue;
 
-                foreach (var chr1 in Objects.Values.OfType<Character>().Where(o => !o.Equals(chr)
-                             && (o.State & StateCharacter.Dead) == 0
-                             && (o.State & StateCharacter.Hurt) == 0
-                             && chr.PhysicalBound.Intersects(o.PhysicalBound)))
+                foreach (var damaging in Objects.Values
+                             .OfType<IDamaging>()
+                             .Where(d => !d.Equals(chr) && chr.HitBox.Intersects(d.HitBox)))
                 {
-                    chr1.HealthPoints -= 2;
-                    chr1.State |= StateCharacter.Hurt;
-                    chr1.Forces += new Vector2(chr1.Direction == Direction.Right ? 5 : -10, -10);
+                    if (damaging is Character chr1 && 
+                        ((chr1.State & StateCharacter.Attacking) == 0 || (chr1.State & StateCharacter.Dead ) != 0))
+                        continue;
+
+                    chr.HealthPoints -= damaging.Damage;
+                    if (chr.HealthPoints < 0) chr.HealthPoints = 0;
+
+                    chr.State |= StateCharacter.Hurt;
+                    chr.Forces += new Vector2(chr.Direction == Direction.Right ? 5 : -10, -10);
+                    break;
                 }
             }
 

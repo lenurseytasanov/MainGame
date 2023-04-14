@@ -48,7 +48,7 @@ namespace MainGame.Managers
                             sprite.Size.Width, sprite.Size.Height),
                         sprite.AnimationManager.CurrentFrame, Color.White,
                         0, Vector2.Zero,
-                        sprite.AnimationManager.CurrentAnimation.Effects, 0);
+                        sprite.AnimationManager.CurrentAnimation.Effects, 0.25f);
                 },
                 Animations = spriteId switch
                 {
@@ -327,7 +327,7 @@ namespace MainGame.Managers
                             (int)sprite.Position.Y,
                             sprite.Size.Width, sprite.Size.Height),
                         sprite.Texture.Bounds, Color.White,
-                        0, Vector2.Zero, SpriteEffects.None, 0.5f);
+                        0, Vector2.Zero, SpriteEffects.None, 0);
                 },
                 Texture = Content.Load<Texture2D>(spriteId switch
                 {
