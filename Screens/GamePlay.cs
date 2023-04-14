@@ -28,8 +28,14 @@ namespace MainGame.Screens
         private int _playerId;
         private Vector2 _playerPosition;
 
-        private readonly Dictionary<int, int> _spriteTypeToId = new Dictionary<int, int>();
-        private readonly Dictionary<int, Sprite> _sprites = new Dictionary<int, Sprite>();
+        private Dictionary<int, int> _spriteTypeToId = new Dictionary<int, int>();
+        private Dictionary<int, Sprite> _sprites = new Dictionary<int, Sprite>();
+
+        public void Reset()
+        {
+            _sprites = new Dictionary<int, Sprite>();
+            _spriteTypeToId = new Dictionary<int, int>();
+        }
 
         public override void Initialize()
         {
@@ -39,21 +45,11 @@ namespace MainGame.Screens
         public override void LoadContent(SpriteBatch spriteBatch)
         {
             _spriteBatch = spriteBatch;
-            _spriteFactory = new BackgroundFactory(Game.Content);
-            var sprite = _spriteFactory.CreateSprite(0);
-            sprite.Size = new Rectangle(0, 0, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight);
-            _sprites.Add(0, sprite);
         }
 
         public override void Update(GameTime gameTime)
         {
             var keys = Keyboard.GetState().GetPressedKeys();
-
-            foreach (var pair in _sprites.Where(pair => pair.Value is CharacterSprite))
-            {
-                var o = pair.Value as CharacterSprite;
-                o.SetAnimations(_spriteTypeToId[pair.Key]);
-            }
 
             foreach (var key in keys)
             {
@@ -74,11 +70,6 @@ namespace MainGame.Screens
                 }
             }
 
-            foreach (var sprite in _sprites.Values.OfType<AnimatedSprite>())
-            {
-                sprite.Update(gameTime);
-            }
-
             CycleFinished?.Invoke(this, new CycleEventArgs() { ElapsedTime = gameTime });
         }
 
@@ -86,6 +77,13 @@ namespace MainGame.Screens
         {
             Game.GraphicsDevice.Clear(Color.Aqua);
 
+            foreach (var pair in _sprites.Where(pair => pair.Value is AnimatedSprite))
+            {
+                if (pair.Value is CharacterSprite chr)
+                    chr.SetAnimations(_spriteTypeToId[pair.Key]);
+                (pair.Value as AnimatedSprite).Update(gameTime);
+            }
+  
             _spriteBatch.Begin(SpriteSortMode.BackToFront, samplerState: SamplerState.LinearWrap);
             foreach (var sprite in _sprites.Values)
             {
@@ -108,6 +106,13 @@ namespace MainGame.Screens
         {
             _playerId = playerId;
 
+            if (!_sprites.ContainsKey(0))
+            {
+                _spriteFactory = new BackgroundFactory(Game.Content);
+                var sprite = _spriteFactory.CreateSprite(0);
+                sprite.Size = new Rectangle(0, 0, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight);
+                _sprites.Add(0, sprite);
+            }
             foreach (var o in gameObjects.Where(o => !_sprites.ContainsKey(o.Key)))
             {
                 switch (o.Value.SpriteId)

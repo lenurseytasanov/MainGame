@@ -19,7 +19,8 @@ namespace MainGame
 
         private EnemyAI _enemyAI;
         private PhysicalModel _physic;
-        private LevelModel _level;
+
+        private Dictionary<string, LevelModel> _levels;
 
         public GameCycle()
         {
@@ -36,13 +37,17 @@ namespace MainGame
 
             _enemyAI = new EnemyAI();
             _physic = new PhysicalModel();
-            _level = new LevelModel();
+            _levels = new Dictionary<string, LevelModel>()
+            {
+                { "level1", new LevelModel() { LoadPath = "../../../Sources/Levels/level1.txt", Name = "level1"} },
+                { "level2", new LevelModel() { LoadPath = "../../../Sources/Levels/level2.txt", Name = "level2" } }
+            };
             _screens = new Dictionary<string, Screen>
             {
                 { "GamePlay", new GamePlay() { Game = this, Graphics = _graphics } }
             };
 
-            InitializeLevel();
+            InitializeLevels();
             InitializePhysic();
             InitializeAI();
             InitializeScreens();
@@ -51,16 +56,19 @@ namespace MainGame
             base.Initialize();
         }
 
-        private void InitializeLevel()
+        private void InitializeLevels()
         {
-            _level.Initialize();
+            foreach (var level in _levels.Values)
+            {
+                level.Initialize();
+            }
         }
 
         private void InitializeScreens()
         {
             var gamePlay = _screens["GamePlay"] as GamePlay;
-            gamePlay.LevelWidth = _level.FieldWidth;
-            gamePlay.LevelHeight = _level.FieldHeight;
+            gamePlay.LevelWidth = _levels["level1"].FieldWidth;
+            gamePlay.LevelHeight = _levels["level1"].FieldHeight;
             gamePlay.Moved += (sender, args) => _physic.Move(args.Id, args.Dir);
             gamePlay.Attacked += (sender, args) => _physic.Attack(args.Id);
             gamePlay.CycleFinished += (sender, args) => _enemyAI.Update(args.ElapsedTime);
@@ -73,16 +81,27 @@ namespace MainGame
 
         private void InitializePhysic()
         {
+            _physic.LevelChanged += (sender, args) =>
+            {
+                var gamePlay = _screens["GamePlay"] as GamePlay;
+                gamePlay.Reset();
+                if (args.LevelName == "level1" && args.Direction == Direction.Right)
+                    _physic.Level = _levels["level2"];
+                if (args.LevelName == "level2" && args.Direction == Direction.Left)
+                    _physic.Level = _levels["level1"];
+                _physic.Initialize();
+            };
             _physic.Updated += (sender, args) => (_screens["GamePlay"] as GamePlay)!.LoadParameters(args.Objects, args.PlayerId);
             _physic.Updated += (sender, args) => _enemyAI.LoadParameters(args.Objects, args.PlayerId);
-            _physic.Initialize(_level);
+            _physic.Level = _levels["level1"];
+            _physic.Initialize();
         }
 
         private void InitializeAI()
         {
-            _enemyAI.CycleFinished += (sender, args) => _physic.Update(args.ElapsedTime);
-            _enemyAI.Attacked += (sender, args) => _physic.Attack(args.Id);
             _enemyAI.Moved += (sender, args) => _physic.Move(args.Id, args.Dir);
+            _enemyAI.Attacked += (sender, args) => _physic.Attack(args.Id);
+            _enemyAI.CycleFinished += (sender, args) => _physic.Update(args.ElapsedTime);
         }
 
         protected override void LoadContent()

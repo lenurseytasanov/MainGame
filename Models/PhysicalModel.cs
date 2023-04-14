@@ -14,13 +14,12 @@ namespace MainGame.Models
         public Dictionary<int, IGameObject> Objects { get; private set; }
         private int _playerId;
 
-        private LevelModel _level;
+        public LevelModel Level { get; set; }
 
-        public void Initialize(LevelModel level)
+        public void Initialize()
         {
-            _level = level;
-            Objects = _level.Objects;
-            _playerId = _level.PlayerId;
+            Objects = Level.Objects;
+            _playerId = Level.PlayerId;
 
             Updated?.Invoke(this, new ObjectsEventArgs() { Objects = Objects, PlayerId = _playerId });
         }
@@ -28,7 +27,7 @@ namespace MainGame.Models
         public void Move(int id, Direction direction)
         {
             var player = Objects[id] as MovingSolidObject;
-            if (player is Character { HealthPoints: <= 0 }) return; 
+            if (player is Character { HealthPoints: <= 0 }) return;
             switch (direction)
             {
                 case Direction.Left:
@@ -56,11 +55,31 @@ namespace MainGame.Models
             }
         }
 
+        public bool t = false;
         public void Update(GameTime gameTime)
         {
             foreach (var movingObj in Objects.Values.OfType<MovingSolidObject>())
             {
+                //if (movingObj.PhysicalBound.Left + movingObj.Speed.X < 0 ||
+                //    movingObj.PhysicalBound.Right + movingObj.Speed.X > Level.FieldWidth)
+                //    movingObj.Speed = new Vector2(0, movingObj.Speed.Y);
+
                 movingObj.Update(gameTime);
+
+                if (movingObj.PhysicalBound.Right > Level.FieldWidth)
+                {
+                    movingObj.Forces = new Vector2(-4, -1);
+                    LevelChanged?.Invoke(this, new LevelChangeArgs() { Direction = Direction.Right, LevelName = Level.Name });
+                    return;
+                }
+
+                if (movingObj.PhysicalBound.Left < 0)
+                {
+                    movingObj.Forces = new Vector2(4, -1);
+                    t = true;
+                    LevelChanged?.Invoke(this, new LevelChangeArgs() { Direction = Direction.Left, LevelName = Level.Name });
+                    return;
+                }
 
                 var flying = true;
                 foreach (var staticObj in Objects.Values.OfType<StaticSolidObject>())
@@ -73,9 +92,13 @@ namespace MainGame.Models
                     if (movingObj.IsTouchBottom(staticObj))
                         movingObj.Speed = new Vector2(movingObj.Speed.X, 0);
                     if (movingObj.IsTouchLeft(staticObj))
-                        movingObj.Speed = new Vector2(-1, movingObj.Speed.Y);
+                        movingObj.Speed = new Vector2(-0, movingObj.Speed.Y);
                     if (movingObj.IsTouchRight(staticObj))
-                        movingObj.Speed = new Vector2(1, movingObj.Speed.Y);
+                    {
+                        if (t)
+                        {}
+                        movingObj.Speed = new Vector2(0, movingObj.Speed.Y);
+                    }
                 }
 
                 if (flying)
@@ -100,5 +123,7 @@ namespace MainGame.Models
         }
 
         public event EventHandler<ObjectsEventArgs> Updated;
+
+        public event EventHandler<LevelChangeArgs> LevelChanged;
     }
 }

@@ -18,8 +18,11 @@ namespace MainGame.Models
         private readonly int _tileSize = 100;
 
         private readonly LoadLevelsManager _loadManager;
+        
+        public string Name { get; set; }
+        public string LoadPath { get; set; }
 
-        public Dictionary<int, IGameObject> Objects { get; private set; }
+        public Dictionary<int, IGameObject> Objects { get; }
         public int PlayerId { get; private set; }
 
         public int FieldWidth => _columns * _tileSize;
@@ -34,7 +37,7 @@ namespace MainGame.Models
 
         public void Initialize()
         {
-            _tiles = _loadManager.LoadLevel("../../../Sources/Levels/level1.txt");
+            _tiles = _loadManager.LoadLevel(LoadPath);
             _rows = _tiles.GetLength(0);
             _columns = _tiles.GetLength(1);
 
@@ -85,6 +88,7 @@ namespace MainGame.Models
                     'G' => 14,
                     'L' => 15,
                     'R' => 16,
+                    'K' => 17,
                     'O' => 18,
                     'C' => 19,
                     'Y' => 20
