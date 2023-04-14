@@ -22,7 +22,7 @@ namespace MainGame.Models
         public string Name { get; set; }
         public string LoadPath { get; set; }
 
-        public Dictionary<int, IGameObject> Objects { get; }
+        public Dictionary<int, IGameObject> Objects { get; private set; }
         public int PlayerId { get; private set; }
 
         public int FieldWidth => _columns * _tileSize;
@@ -30,13 +30,13 @@ namespace MainGame.Models
 
         public LevelModel()
         {
-            Objects = new Dictionary<int, IGameObject>();
             _loadManager = new LoadLevelsManager();
-            _tiles = new char[_rows, _columns];
         }
 
         public void Initialize()
         {
+            Objects = new Dictionary<int, IGameObject>();
+            _tiles = new char[_rows, _columns];
             _tiles = _loadManager.LoadLevel(LoadPath);
             _rows = _tiles.GetLength(0);
             _columns = _tiles.GetLength(1);

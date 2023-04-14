@@ -10,11 +10,16 @@ namespace MainGame.Screens
 {
     public abstract class Screen
     {
+        protected SpriteBatch SpriteBatch;
+
         public Game Game { get; set; }
 
         public abstract void Initialize();
 
-        public abstract void LoadContent(SpriteBatch spriteBatch);
+        public void LoadContent(SpriteBatch spriteBatch)
+        {
+            SpriteBatch = spriteBatch;
+        }
 
         public abstract void Update(GameTime gameTime);
 

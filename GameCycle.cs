@@ -44,7 +44,9 @@ namespace MainGame
             };
             _screens = new Dictionary<string, Screen>
             {
-                { "GamePlay", new GamePlay() { Game = this, Graphics = _graphics } }
+                { "GamePlay", new GamePlay() { Game = this } },
+                { "MainMenu", new MainMenu() { Game = this } },
+                { "GameOver", new GameOver() { Game = this } }
             };
 
             InitializeLevels();
@@ -52,7 +54,7 @@ namespace MainGame
             InitializeAI();
             InitializeScreens();
 
-            _currentScreen = "GamePlay";
+            _currentScreen = "MainMenu";
             base.Initialize();
         }
 
@@ -72,7 +74,19 @@ namespace MainGame
             gamePlay.Moved += (sender, args) => _physic.Move(args.Id, args.Dir);
             gamePlay.Attacked += (sender, args) => _physic.Attack(args.Id);
             gamePlay.CycleFinished += (sender, args) => _enemyAI.Update(args.ElapsedTime);
+            gamePlay.PlayerDead += (sender, args) => _currentScreen = "GameOver";
 
+            var mainMenu = _screens["MainMenu"] as MainMenu;
+            mainMenu.Started += (sender, args) => _currentScreen = "GamePlay";
+
+            var gameOver = _screens["GameOver"] as GameOver;
+            gameOver.ReStarted += (sender, args) =>
+            {
+                _currentScreen = "GamePlay";
+                (_screens["GamePlay"] as GamePlay).Reset();
+                InitializeLevels();
+                InitializePhysic();
+            };
             foreach (var screen in _screens.Values)
             {
                 screen.Initialize();
@@ -116,9 +130,6 @@ namespace MainGame
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
             _screens[_currentScreen].Update(gameTime);
 
             base.Update(gameTime);

@@ -18,13 +18,13 @@ namespace MainGame.Screens
 {
     public class GamePlay : Screen
     {
-        private SpriteBatch _spriteBatch;
-        public GraphicsDeviceManager Graphics { get; set; }
-
         private SpriteFactory _spriteFactory;
 
         public int LevelWidth { get; set; }
         public int LevelHeight { get; set; }
+
+        private int WindowWidth => Game.GraphicsDevice.PresentationParameters.BackBufferWidth;
+        private int WindowHeight => Game.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
         private int _playerId;
         private Vector2 _playerPosition;
@@ -40,12 +40,7 @@ namespace MainGame.Screens
 
         public override void Initialize()
         {
-            _playerPosition = new Vector2(Graphics.PreferredBackBufferWidth / 2, 0);
-        }
-
-        public override void LoadContent(SpriteBatch spriteBatch)
-        {
-            _spriteBatch = spriteBatch;
+            _playerPosition = new Vector2(WindowWidth / 2, 0);
         }
 
         public override void Update(GameTime gameTime)
@@ -68,6 +63,9 @@ namespace MainGame.Screens
                     case Keys.A:
                         Attacked?.Invoke(this, new AttackEventArgs() { Id = _playerId });
                         break;
+                    case Keys.Escape:
+                        Game.Exit();
+                        break;
                 }
             }
 
@@ -76,8 +74,6 @@ namespace MainGame.Screens
 
         public override void Draw(GameTime gameTime)
         {
-            Game.GraphicsDevice.Clear(Color.Aqua);
-
             foreach (var pair in _sprites.Where(pair => pair.Value is AnimatedSprite))
             {
                 if (pair.Value is CharacterSprite chr)
@@ -85,12 +81,12 @@ namespace MainGame.Screens
                 (pair.Value as AnimatedSprite).Update(gameTime);
             }
 
-            _spriteBatch.Begin(SpriteSortMode.BackToFront, samplerState: SamplerState.LinearWrap);
+            SpriteBatch.Begin(SpriteSortMode.BackToFront);
             foreach (var sprite in _sprites.Values)
             {
-                sprite.Draw?.Invoke(sprite, _spriteBatch, GetPlayerShift());
+                sprite.Draw?.Invoke(sprite, SpriteBatch, GetPlayerShift());
             }
-            _spriteBatch.End();
+            SpriteBatch.End();
         }
 
         private int GetPlayerShift()
@@ -99,7 +95,7 @@ namespace MainGame.Screens
             if (_sprites[_playerId].Position.X < _playerPosition.X)
                 shiftOfPlayer = 0;
             if (_sprites[_playerId].Position.X > LevelWidth - _playerPosition.X)
-                shiftOfPlayer = Graphics.PreferredBackBufferWidth - LevelWidth;
+                shiftOfPlayer = WindowWidth - LevelWidth;
             return shiftOfPlayer;
         }
 
@@ -111,7 +107,7 @@ namespace MainGame.Screens
             {
                 _spriteFactory = new BackgroundFactory(Game.Content);
                 var sprite = _spriteFactory.CreateSprite(0);
-                sprite.Size = new Rectangle(0, 0, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight);
+                sprite.Size = new Rectangle(0, 0, WindowWidth, WindowHeight);
                 _sprites.Add(0, sprite);
             }
 
@@ -149,6 +145,11 @@ namespace MainGame.Screens
                     chrSpr.AttackNumber = chr.AttackNumber;
                     if (o.Key == playerId)
                     {
+                        if ((chr.State & StateCharacter.Dead) != 0)
+                        {
+                            PlayerDead?.Invoke(this, EventArgs.Empty);
+                            return;
+                        }
                         (_sprites[-1] as StateSprite).SetState(chr.HealthPoints == 10 ? 10 : chr.HealthPoints % 10);
                     }
                 }
@@ -197,6 +198,8 @@ namespace MainGame.Screens
 
         //    sprite.Position += new Vector2(sprite.Texture.Width, 0);
         //}
+
+        public event EventHandler PlayerDead;
 
         public event EventHandler<AttackEventArgs> Attacked; 
 

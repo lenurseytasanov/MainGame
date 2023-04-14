@@ -2653,6 +2653,13 @@
 /processorParam:TextureFormat=Color
 /build:dungeon/Tiles_rock/tile9.png
 
+#begin fonts/font.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:fonts/font.spritefont
+
 #begin Knight_1/Attack 1.png
 /importer:TextureImporter
 /processor:TextureProcessor
