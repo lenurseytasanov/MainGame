@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using MainGame.Managers;
 using MainGame.Misc;
@@ -83,7 +84,7 @@ namespace MainGame.Screens
                     chr.SetAnimations(_spriteTypeToId[pair.Key]);
                 (pair.Value as AnimatedSprite).Update(gameTime);
             }
-  
+
             _spriteBatch.Begin(SpriteSortMode.BackToFront, samplerState: SamplerState.LinearWrap);
             foreach (var sprite in _sprites.Values)
             {
@@ -113,6 +114,14 @@ namespace MainGame.Screens
                 sprite.Size = new Rectangle(0, 0, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight);
                 _sprites.Add(0, sprite);
             }
+
+            if (!_sprites.ContainsKey(-1))
+            {
+                _spriteFactory = new BarsFactory(Game.Content);
+                var sprite = _spriteFactory.CreateSprite(-1);
+                _sprites.Add(-1, sprite);
+            }
+
             foreach (var o in gameObjects.Where(o => !_sprites.ContainsKey(o.Key)))
             {
                 switch (o.Value.SpriteId)
@@ -138,6 +147,10 @@ namespace MainGame.Screens
                     chrSpr.Direction = chr.Direction;
                     chrSpr.State = chr.State;
                     chrSpr.AttackNumber = chr.AttackNumber;
+                    if (o.Key == playerId)
+                    {
+                        (_sprites[-1] as StateSprite).SetState(chr.HealthPoints == 10 ? 10 : chr.HealthPoints % 10);
+                    }
                 }
             }
         }

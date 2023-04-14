@@ -66,6 +66,8 @@ namespace MainGame.Models
                 SpriteId = 2,
                 HealthPoints = 1,
                 AttackCount = 1,
+                Mass = 2.0f,
+                Acceleration = 2.0f,
                 PhysicalBound = new Rectangle(i * _tileSize + _tileSize * 2 / 3, j * _tileSize + _tileSize * 2 / 3, _tileSize * 2 / 3, _tileSize * 4 / 3),
                 Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize * 2, _tileSize * 2)
             },

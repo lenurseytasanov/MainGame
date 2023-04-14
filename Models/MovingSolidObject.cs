@@ -22,6 +22,8 @@ namespace MainGame.Models
 
         public Vector2 Forces { get; set; }
 
+        public float Acceleration { get; set; } = 4.0f;
+
         public float Mass { get; set; } = 1.0f;
 
         public Direction Direction { get; set; }
@@ -46,18 +48,18 @@ namespace MainGame.Models
 
         public bool IsTouchTop(StaticSolidObject other)
         {
-            return this.PhysicalBound.Bottom + this.Speed.Y > other.PhysicalBound.Top &&
-                   this.PhysicalBound.Top < other.PhysicalBound.Top &&
-                   this.PhysicalBound.Right > other.PhysicalBound.Left &&
-                   this.PhysicalBound.Left < other.PhysicalBound.Right;
+            return PhysicalBound.Bottom + Speed.Y > other.PhysicalBound.Top &&
+                   PhysicalBound.Top < other.PhysicalBound.Top &&
+                   PhysicalBound.Right > other.PhysicalBound.Left &&
+                   PhysicalBound.Left < other.PhysicalBound.Right;
         }
 
         public bool IsTouchBottom(StaticSolidObject other)
         {
-            return this.PhysicalBound.Top + this.Speed.Y < other.PhysicalBound.Bottom &&
-                   this.PhysicalBound.Bottom > other.PhysicalBound.Bottom &&
-                   this.PhysicalBound.Right > other.PhysicalBound.Left &&
-                   this.PhysicalBound.Left < other.PhysicalBound.Right;
+            return PhysicalBound.Top + Speed.Y < other.PhysicalBound.Bottom &&
+                   PhysicalBound.Bottom > other.PhysicalBound.Bottom &&
+                   PhysicalBound.Right > other.PhysicalBound.Left &&
+                   PhysicalBound.Left < other.PhysicalBound.Right;
         }
 
         public virtual void Update(GameTime gameTime)

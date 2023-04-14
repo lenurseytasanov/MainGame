@@ -21,7 +21,12 @@ namespace MainGame
                          .Select(o => (o.Key, Value: o.Value as Character)))
             {
                 var chr = o.Value;
-                Moved?.Invoke(this, new MoveEventArgs() { Id = o.Key, Dir = chr.Direction });
+                Moved?.Invoke(this,
+                    new MoveEventArgs()
+                    {
+                        Id = o.Key,
+                        Dir = chr.Position.X <= _objects[_playerId].Position.X ? Direction.Right : Direction.Left
+                    });
                 if (chr.PhysicalBound.Intersects((_objects[_playerId] as Character).PhysicalBound))
                     Attacked?.Invoke(this, new AttackEventArgs() { Id = o.Key });
             }

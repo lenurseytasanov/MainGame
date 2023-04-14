@@ -31,10 +31,10 @@ namespace MainGame.Models
             switch (direction)
             {
                 case Direction.Left:
-                    player.Forces += new Vector2(-4f, 0);
+                    player.Forces += new Vector2(-player.Acceleration, 0);
                     break;
                 case Direction.Right:
-                    player.Forces += new Vector2(4f, 0);
+                    player.Forces += new Vector2(player.Acceleration, 0);
                     break;
                 case Direction.Up:
                     if ((player.State & StateCharacter.Flying) == 0)
@@ -55,28 +55,24 @@ namespace MainGame.Models
             }
         }
 
-        public bool t = false;
         public void Update(GameTime gameTime)
         {
             foreach (var movingObj in Objects.Values.OfType<MovingSolidObject>())
             {
-                //if (movingObj.PhysicalBound.Left + movingObj.Speed.X < 0 ||
-                //    movingObj.PhysicalBound.Right + movingObj.Speed.X > Level.FieldWidth)
-                //    movingObj.Speed = new Vector2(0, movingObj.Speed.Y);
-
                 movingObj.Update(gameTime);
 
                 if (movingObj.PhysicalBound.Right > Level.FieldWidth)
                 {
-                    movingObj.Forces = new Vector2(-4, -1);
+                    movingObj.Forces = new Vector2(0, -1) * movingObj.Mass;
+                    movingObj.Speed = new Vector2(-5, 0);
                     LevelChanged?.Invoke(this, new LevelChangeArgs() { Direction = Direction.Right, LevelName = Level.Name });
                     return;
                 }
 
                 if (movingObj.PhysicalBound.Left < 0)
                 {
-                    movingObj.Forces = new Vector2(4, -1);
-                    t = true;
+                    movingObj.Forces = new Vector2(0, -1) * movingObj.Mass;
+                    movingObj.Speed = new Vector2(5, 0);
                     LevelChanged?.Invoke(this, new LevelChangeArgs() { Direction = Direction.Left, LevelName = Level.Name });
                     return;
                 }
@@ -94,11 +90,7 @@ namespace MainGame.Models
                     if (movingObj.IsTouchLeft(staticObj))
                         movingObj.Speed = new Vector2(-0, movingObj.Speed.Y);
                     if (movingObj.IsTouchRight(staticObj))
-                    {
-                        if (t)
-                        {}
                         movingObj.Speed = new Vector2(0, movingObj.Speed.Y);
-                    }
                 }
 
                 if (flying)

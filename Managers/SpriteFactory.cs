@@ -346,6 +346,35 @@ namespace MainGame.Managers
         }
     }
 
+    public class BarsFactory : SpriteFactory
+    {
+        public BarsFactory(ContentManager content) : base(content) { }
+
+        public override Sprite CreateSprite(int spriteId)
+        {
+            var sprite = new StateSprite()
+            {
+                Position = new Vector2(20, 20),
+                States = new Dictionary<int, Texture2D>()
+                {
+                    { 0, Content.Load<Texture2D>("bars/healthbar0") },
+                    { 1, Content.Load<Texture2D>("bars/healthbar1") },
+                    { 2, Content.Load<Texture2D>("bars/healthbar2") },
+                    { 3, Content.Load<Texture2D>("bars/healthbar3") },
+                    { 4, Content.Load<Texture2D>("bars/healthbar4") },
+                    { 5, Content.Load<Texture2D>("bars/healthbar5") },
+                    { 6, Content.Load<Texture2D>("bars/healthbar6") },
+                    { 7, Content.Load<Texture2D>("bars/healthbar7") },
+                    { 8, Content.Load<Texture2D>("bars/healthbar8") },
+                    { 9, Content.Load<Texture2D>("bars/healthbar9") },
+                    { 10, Content.Load<Texture2D>("bars/healthbar10") }
+                }
+            };
+            sprite.Initialize();
+            return sprite;
+        }
+    }
+
     public class BackgroundFactory : SpriteFactory
     {
         public BackgroundFactory(ContentManager content) : base(content) { }
