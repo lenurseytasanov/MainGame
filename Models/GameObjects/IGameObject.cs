@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace MainGame.Models
+namespace MainGame.Models.GameObjects
 {
     public interface IGameObject
     {

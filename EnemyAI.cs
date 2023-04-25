@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MainGame.Misc;
-using MainGame.Models;
+using MainGame.Models.GameObjects;
 using Microsoft.Xna.Framework;
 
 namespace MainGame
@@ -30,7 +30,6 @@ namespace MainGame
                 if (chr.PhysicalBound.Intersects((_objects[_playerId] as Character).PhysicalBound))
                     Attacked?.Invoke(this, new AttackEventArgs() { Id = o.Key });
             }
-            CycleFinished?.Invoke(this, new CycleEventArgs() { ElapsedTime = elapsedTime });
         }
 
         public void LoadParameters(Dictionary<int, IGameObject> objects, int playerId)
@@ -41,6 +40,5 @@ namespace MainGame
 
         public event EventHandler<MoveEventArgs> Moved;
         public event EventHandler<AttackEventArgs> Attacked;
-        public event EventHandler<CycleEventArgs> CycleFinished;
     }
 }

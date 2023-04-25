@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace MainGame.Models
+namespace MainGame.Models.GameObjects
 {
-    public class StaticGhostObject : IGameObject, IDamaging
+    public class Lava : IDamaging
     {
         public Vector2 Position { get; set; }
 
@@ -15,8 +15,8 @@ namespace MainGame.Models
 
         public Rectangle HitBox { get; set; }
 
-        public int SpriteId { get; set; }
-
         public int Damage { get; set; } = 2;
+
+        public int SpriteId { get; set; }
     }
 }

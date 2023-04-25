@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using MainGame.Managers;
 using Microsoft.Xna.Framework;
+using MainGame.Models.GameObjects;
 
 namespace MainGame.Models
 {
-    public class LevelModel
+    public class LevelFactory
     {
         private char[,] _tiles;
 
@@ -22,20 +23,22 @@ namespace MainGame.Models
         public string Name { get; set; }
         public string LoadPath { get; set; }
 
-        public Dictionary<int, IGameObject> Objects { get; private set; }
         public int PlayerId { get; private set; }
 
         public int FieldWidth => _columns * _tileSize;
         public int FieldHeight => _rows * _tileSize;
 
-        public LevelModel()
+        public LevelFactory()
         {
             _loadManager = new LoadLevelsManager();
         }
 
         public void Initialize()
+        { }
+
+        public Dictionary<int, IGameObject> CreateGameObjects()
         {
-            Objects = new Dictionary<int, IGameObject>();
+            var objects = new Dictionary<int, IGameObject>();
             _tiles = new char[_rows, _columns];
             _tiles = _loadManager.LoadLevel(LoadPath);
             _rows = _tiles.GetLength(0);
@@ -51,13 +54,14 @@ namespace MainGame.Models
                     if (_tiles[r, c] == 'P')
                         PlayerId = currentId;
 
-                    Objects.Add(currentId, CreateGameObject(_tiles[r, c], c, r));
+                    objects.Add(currentId, GetObject(_tiles[r, c], c, r));
                     currentId++;
                 }
             }
+            return objects;
         }
 
-        public IGameObject CreateGameObject(char sign, int i, int j) => sign switch
+        private IGameObject GetObject(char sign, int i, int j) => sign switch
         {
             'E' => new Character()
             {
@@ -65,6 +69,7 @@ namespace MainGame.Models
                 Speed = Vector2.Zero,
                 SpriteId = 2,
                 HealthPoints = 1,
+                Damage = 2,
                 AttackCount = 1,
                 Mass = 2.0f,
                 Acceleration = 2.0f,
@@ -76,34 +81,47 @@ namespace MainGame.Models
                 Position = new Vector2(i * _tileSize, j * _tileSize),
                 Speed = Vector2.Zero,
                 SpriteId = 1,
+                HealthPoints = 10,
+                Damage = 2,
                 AttackCount = 3,
                 PhysicalBound = new Rectangle(i * _tileSize + _tileSize * 2 / 3, j * _tileSize + _tileSize * 2 / 3, _tileSize * 2 / 3, _tileSize * 4 / 3),
                 Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize * 2, _tileSize * 2)
             },
-            'D' => new StaticGhostObject()
+            'L' => new Lava()
             {
                 Position = new Vector2(i * _tileSize, j * _tileSize),
                 SpriteId = 13,
                 HitBox = new Rectangle(i * _tileSize, j * _tileSize + _tileSize / 4, _tileSize, _tileSize * 3 / 4),
                 Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize, _tileSize),
             },
-            _ => new StaticSolidObject()
+            'G' => new Ground()
             {
                 Position = new Vector2(i * _tileSize, j * _tileSize),
-                SpriteId = sign switch
-                {
-                    'U' => 12,
-                    'G' => 14,
-                    'L' => 15,
-                    'R' => 16,
-                    'K' => 17,
-                    'O' => 18,
-                    'C' => 19,
-                    'Y' => 20
-                },
+                SpriteId = GetGroundStateId(sign, i, j),
                 PhysicalBound = new Rectangle(i * _tileSize, j * _tileSize + _tileSize / 4, _tileSize, _tileSize * 3 / 4),
                 Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize, _tileSize)
             }
         };
+
+        private int GetGroundStateId(char ground, int c, int r)
+        {
+            if (r > 0 && _tiles[r - 1, c] == ' ')
+            {
+                if (c > 0 && _tiles[r, c - 1] == ' ')
+                    return 15;
+                if (c < _columns - 1 && _tiles[r, c + 1] == ' ')
+                    return 16;
+                return 12;
+            }
+            if (r > 0 && c > 0 && _tiles[r, c - 1] != ' ' && _tiles[r - 1, c] != ' ' && _tiles[r - 1, c - 1] == ' ')
+                return 20;
+            if (r > 0 && c < _columns - 1 && _tiles[r, c + 1] != ' ' && _tiles[r - 1, c] != ' ' && _tiles[r - 1, c + 1] == ' ')
+                return 19;
+            if (c > 0 && _tiles[r, c - 1] == ' ')
+                return 17;
+            if (c < _columns - 1 && _tiles[r, c + 1] == ' ')
+                return 18;
+            return 14;
+        }
     }
 }

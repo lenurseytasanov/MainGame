@@ -7,7 +7,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using MainGame.Managers;
 using MainGame.Misc;
-using MainGame.Models;
+using MainGame.Models.GameObjects;
 using MainGame.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -120,19 +120,16 @@ namespace MainGame.Screens
 
             foreach (var o in gameObjects.Where(o => !_sprites.ContainsKey(o.Key)))
             {
-                switch (o.Value.SpriteId)
+                _spriteFactory = o.Value.SpriteId switch
                 {
-                    case >= 1 and <= 11:
-                        _spriteFactory = new CharacterSpriteFactory(Game.Content);
-                        break;
-                    case >= 12:
-                        _spriteFactory = new StaticSpriteFactory(Game.Content);
-                        break;
-                }
+                    >= 1 and <= 11 => new CharacterSpriteFactory(Game.Content),
+                    >= 12 => new StaticSpriteFactory(Game.Content)
+                };
                 var sprite = _spriteFactory.CreateSprite(o.Value.SpriteId);
                 _spriteTypeToId.Add(o.Key, o.Value.SpriteId);
                 _sprites.Add(o.Key, sprite);
             }
+
             foreach (var o in gameObjects)
             {
                 _sprites[o.Key].Position = gameObjects[o.Key].Position;

@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace MainGame.Models
+namespace MainGame.Models.GameObjects
 {
-    internal interface IDamaging
+    internal interface IDamaging : IGameObject
     {
         public int Damage { get; set; }
 
