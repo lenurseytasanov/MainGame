@@ -12,22 +12,30 @@ namespace MainGame.Models
 {
     public class PhysicalModel
     {
-        public Dictionary<int, IGameObject> Objects { get; private set; }
-        private int _playerId;
-
-        public LevelFactory Level { get; set; }
+        public Dictionary<string, LevelModel> Levels { get; set; }
+        public LevelModel CurrentLevel { get; set; }
 
         public void Initialize()
         {
-            Objects = Level.CreateGameObjects();
-            _playerId = Level.PlayerId;
+            Levels = new Dictionary<string, LevelModel>()
+            {
+                { "level1", new LevelModel() { LoadPath = "../../../Sources/Levels/level1.txt" } },
+                { "level2", new LevelModel() { LoadPath = "../../../Sources/Levels/level2.txt" } }
+            };
+            CurrentLevel = Levels["level1"];
+            CurrentLevel.Initialize();
 
-            Updated?.Invoke(this, new ObjectsEventArgs() { Objects = Objects, PlayerId = _playerId });
+            Updated?.Invoke(this, new ObjectsEventArgs()
+            {
+                Objects = CurrentLevel.Objects,
+                PlayerId = CurrentLevel.PlayerId,
+                LevelSize = CurrentLevel.LevelSize,
+            });
         }
 
         public void Move(int id, Direction direction)
         {
-            var dynamic = Objects[id] as DynamicObject;
+            var dynamic = CurrentLevel.Objects[id] as DynamicObject;
             if (dynamic is Character { HealthPoints: <= 0 }) return;
             switch (direction)
             {
@@ -46,7 +54,7 @@ namespace MainGame.Models
 
         public void Attack(int id)
         {
-            var chr = Objects[id] as Character;
+            var chr = CurrentLevel.Objects[id] as Character;
             if ((chr.State & StateCharacter.Attacking) == 0 &&
                 (chr.State & StateCharacter.Dead) == 0)
             {
@@ -58,28 +66,15 @@ namespace MainGame.Models
 
         public void Update(GameTime gameTime)
         {
-            foreach (var character in Objects.Values.OfType<Character>())
+            foreach (var character in CurrentLevel.Objects.Values.OfType<Character>())
             {
                 character.Update(gameTime);
 
-                if (character.Size.Right > Level.FieldWidth)
-                {
-                    character.Forces = new Vector2(0, -1) * character.Mass;
-                    character.Speed = new Vector2(-5, 0);
-                    LevelChanged?.Invoke(this, new LevelChangeArgs() { Direction = Direction.Right, LevelName = Level.Name });
-                    return;
-                }
-
-                if (character.Size.Left < 0)
-                {
-                    character.Forces = new Vector2(0, -1) * character.Mass;
-                    character.Speed = new Vector2(5, 0);
-                    LevelChanged?.Invoke(this, new LevelChangeArgs() { Direction = Direction.Left, LevelName = Level.Name });
-                    return;
-                }
+                if (IsLevelChanged(character))
+                    break;
 
                 var flying = true;
-                foreach (var staticObj in Objects.Values.OfType<Ground>())
+                foreach (var staticObj in CurrentLevel.Objects.Values.OfType<Ground>())
                 {
                     if (character.IsTouchTop(staticObj))
                     {
@@ -89,7 +84,7 @@ namespace MainGame.Models
                     if (character.IsTouchBottom(staticObj))
                         character.Speed = new Vector2(character.Speed.X, 0);
                     if (character.IsTouchLeft(staticObj))
-                        character.Speed = new Vector2(-0, character.Speed.Y);
+                        character.Speed = new Vector2(0, character.Speed.Y);
                     if (character.IsTouchRight(staticObj))
                         character.Speed = new Vector2(0, character.Speed.Y);
                 }
@@ -103,7 +98,7 @@ namespace MainGame.Models
                     (character.State & StateCharacter.Hurt) != 0)
                     continue;
 
-                foreach (var damaging in Objects.Values
+                foreach (var damaging in CurrentLevel.Objects.Values
                              .OfType<IDamaging>()
                              .Where(d => !d.Equals(character) && character.HitBox.Intersects(d.HitBox)))
                 {
@@ -120,11 +115,32 @@ namespace MainGame.Models
                 }
             }
 
-            Updated?.Invoke(this, new ObjectsEventArgs() { Objects = Objects, PlayerId = _playerId });
+            Updated?.Invoke(this, new ObjectsEventArgs()
+            {
+                Objects = CurrentLevel.Objects, 
+                PlayerId = CurrentLevel.PlayerId, 
+                LevelSize = CurrentLevel.LevelSize
+            });
+        }
+
+        private bool IsLevelChanged(Character character)
+        {
+            if (CurrentLevel.LevelSize.Contains(character.PhysicalBound))
+                return false;
+            character.Forces = new Vector2(0, -1) * character.Mass;
+            character.Speed = new Vector2(10, 0) * (character.Speed.X > 0 ? -1 : 1);
+            if (character.PhysicalBound.Right > CurrentLevel.LevelSize.Width)
+                CurrentLevel = Levels["level2"];
+            if (character.PhysicalBound.Left < 0)
+                CurrentLevel = Levels["level1"];
+            if (CurrentLevel.Objects == null)
+                CurrentLevel.Initialize();
+            LevelChanged?.Invoke(this, EventArgs.Empty);
+            return true;
         }
 
         public event EventHandler<ObjectsEventArgs> Updated;
 
-        public event EventHandler<LevelChangeArgs> LevelChanged;
+        public event EventHandler LevelChanged;
     }
 }

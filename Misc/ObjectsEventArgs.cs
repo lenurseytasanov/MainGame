@@ -13,5 +13,7 @@ namespace MainGame.Misc
         public Dictionary<int, IGameObject> Objects { get; set; }
 
         public int PlayerId { get; set; }
+
+        public Rectangle LevelSize { get; set; }
     }
 }

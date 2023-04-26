@@ -20,8 +20,7 @@ namespace MainGame.Screens
     {
         private SpriteFactory _spriteFactory;
 
-        public int LevelWidth { get; set; }
-        public int LevelHeight { get; set; }
+        public Rectangle LevelSize { get; private set; }
 
         private int WindowWidth => Game.GraphicsDevice.PresentationParameters.BackBufferWidth;
         private int WindowHeight => Game.GraphicsDevice.PresentationParameters.BackBufferHeight;
@@ -29,13 +28,13 @@ namespace MainGame.Screens
         private int _playerId;
         private Vector2 _playerPosition;
 
-        private Dictionary<int, int> _spriteTypeToId = new Dictionary<int, int>();
-        private Dictionary<int, Sprite> _sprites = new Dictionary<int, Sprite>();
+        private readonly Dictionary<int, int> _spriteTypeToId = new Dictionary<int, int>();
+        private readonly Dictionary<int, Sprite> _sprites = new Dictionary<int, Sprite>();
 
         public void Reset()
         {
-            _sprites = new Dictionary<int, Sprite>();
-            _spriteTypeToId = new Dictionary<int, int>();
+            _sprites.Clear();
+            _spriteTypeToId.Clear();
         }
 
         public override void Initialize()
@@ -94,14 +93,15 @@ namespace MainGame.Screens
             var shiftOfPlayer = (int)_playerPosition.X - (int)_sprites[_playerId].Position.X;
             if (_sprites[_playerId].Position.X < _playerPosition.X)
                 shiftOfPlayer = 0;
-            if (_sprites[_playerId].Position.X > LevelWidth - _playerPosition.X)
-                shiftOfPlayer = WindowWidth - LevelWidth;
+            if (_sprites[_playerId].Position.X > LevelSize.Width - _playerPosition.X)
+                shiftOfPlayer = WindowWidth - LevelSize.Width;
             return shiftOfPlayer;
         }
 
-        public void LoadParameters(Dictionary<int, IGameObject> gameObjects, int playerId)
+        public void LoadParameters(Dictionary<int, IGameObject> gameObjects, int playerId, Rectangle levelSize)
         {
             _playerId = playerId;
+            LevelSize = levelSize;
 
             if (!_sprites.ContainsKey(0))
             {

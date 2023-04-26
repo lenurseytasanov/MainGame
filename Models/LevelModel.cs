@@ -9,7 +9,7 @@ using MainGame.Models.GameObjects;
 
 namespace MainGame.Models
 {
-    public class LevelFactory
+    public class LevelModel
     {
         private char[,] _tiles;
 
@@ -20,25 +20,21 @@ namespace MainGame.Models
 
         private readonly LoadLevelsManager _loadManager;
         
-        public string Name { get; set; }
         public string LoadPath { get; set; }
 
+        public Dictionary<int, IGameObject> Objects { get; private set; }
         public int PlayerId { get; private set; }
 
-        public int FieldWidth => _columns * _tileSize;
-        public int FieldHeight => _rows * _tileSize;
+        public Rectangle LevelSize => new Rectangle(0, 0, _columns * _tileSize, _rows * _tileSize);
 
-        public LevelFactory()
+        public LevelModel()
         {
             _loadManager = new LoadLevelsManager();
         }
 
         public void Initialize()
-        { }
-
-        public Dictionary<int, IGameObject> CreateGameObjects()
         {
-            var objects = new Dictionary<int, IGameObject>();
+            Objects = new Dictionary<int, IGameObject>();
             _tiles = new char[_rows, _columns];
             _tiles = _loadManager.LoadLevel(LoadPath);
             _rows = _tiles.GetLength(0);
@@ -54,11 +50,10 @@ namespace MainGame.Models
                     if (_tiles[r, c] == 'P')
                         PlayerId = currentId;
 
-                    objects.Add(currentId, GetObject(_tiles[r, c], c, r));
+                    Objects.Add(currentId, GetObject(_tiles[r, c], c, r));
                     currentId++;
                 }
             }
-            return objects;
         }
 
         private IGameObject GetObject(char sign, int i, int j) => sign switch
