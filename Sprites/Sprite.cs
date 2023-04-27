@@ -16,10 +16,17 @@ namespace MainGame.Sprites
 
         public Texture2D Texture { get; set; }
 
-        public Action<object, SpriteBatch, Vector2> Draw { get; set; } = (sender, spriteBatch, shift) =>
+        public float LayerDepth { get; set; }
+
+        public virtual void Draw(SpriteBatch spriteBatch, Vector2 shift)
         {
-            var o = sender as Sprite;
-            spriteBatch.Draw(o.Texture, o.Position, Color.White);
-        };
+            spriteBatch.Draw(Texture,
+                new Rectangle(
+                    (int)shift.X + (int)Position.X,
+                    (int)shift.Y + (int)Position.Y,
+                    Size.Width, Size.Height),
+                Texture.Bounds, Color.White,
+                0, Vector2.Zero, SpriteEffects.None, LayerDepth);
+        }
     }
 }

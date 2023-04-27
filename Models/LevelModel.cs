@@ -58,19 +58,6 @@ namespace MainGame.Models
 
         private IGameObject GetObject(char sign, int i, int j) => sign switch
         {
-            'E' => new Character()
-            {
-                Position = new Vector2(i * _tileSize, j * _tileSize),
-                Speed = Vector2.Zero,
-                SpriteId = 2,
-                HealthPoints = 1,
-                Damage = 2,
-                AttackCount = 1,
-                Mass = 2.0f,
-                Acceleration = 2.0f,
-                PhysicalBound = new Rectangle(i * _tileSize + _tileSize * 2 / 3, j * _tileSize + _tileSize * 2 / 3, _tileSize * 2 / 3, _tileSize * 4 / 3),
-                Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize * 2, _tileSize * 2)
-            },
             'P' => new Character()
             {
                 Position = new Vector2(i * _tileSize, j * _tileSize),
@@ -78,7 +65,18 @@ namespace MainGame.Models
                 SpriteId = 1,
                 HealthPoints = 10,
                 Damage = 2,
-                AttackCount = 3,
+                PhysicalBound = new Rectangle(i * _tileSize + _tileSize * 2 / 3, j * _tileSize + _tileSize * 2 / 3, _tileSize * 2 / 3, _tileSize * 4 / 3),
+                Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize * 2, _tileSize * 2)
+            },
+            'O' => new Character()
+            {
+                Position = new Vector2(i * _tileSize, j * _tileSize),
+                Speed = Vector2.Zero,
+                SpriteId = 2,
+                HealthPoints = 1,
+                Damage = 2,
+                Mass = 2.0f,
+                Acceleration = 2.0f,
                 PhysicalBound = new Rectangle(i * _tileSize + _tileSize * 2 / 3, j * _tileSize + _tileSize * 2 / 3, _tileSize * 2 / 3, _tileSize * 4 / 3),
                 Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize * 2, _tileSize * 2)
             },

@@ -66,11 +66,7 @@ namespace MainGame.Models
             var chr = _levels[_currentLevel].Objects[id] as Character;
             if ((chr.State & StateCharacter.Attacking) == 0 &&
                 (chr.State & StateCharacter.Dead) == 0)
-            {
                 chr.State |= StateCharacter.Attacking;
-                chr.AttackNumber++;
-                chr.AttackNumber %= chr.AttackCount;
-            }
         }
 
         public void Update(GameTime gameTime)

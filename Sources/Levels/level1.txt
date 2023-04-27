@@ -1,9 +1,9 @@
 8 30
                               
-          E                   
+          O                   
 P                             
        GGGG                   
-GGGG    E       GLLG          
-GGGG           GGGGGG    E    
+GGGG    O       GLLG          
+GGGG           GGGGGG    O    
 GGGGGGGGGGGGGGGGGGGGGG        
 GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG

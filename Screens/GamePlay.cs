@@ -73,17 +73,17 @@ namespace MainGame.Screens
 
         public override void Draw(GameTime gameTime)
         {
-            foreach (var pair in _sprites.Where(pair => pair.Value is AnimatedSprite))
+            foreach (var pair in _sprites.Where(pair => pair.Value is CharacterSprite))
             {
-                if (pair.Value is CharacterSprite chr)
-                    chr.SetAnimations(_spriteTypeToId[pair.Key]);
-                (pair.Value as AnimatedSprite).Update(gameTime);
+                var chr = pair.Value as CharacterSprite;
+                chr.SetAnimations(_spriteTypeToId[pair.Key]);
+                chr.Update(gameTime);
             }
 
             SpriteBatch.Begin(SpriteSortMode.BackToFront);
             foreach (var sprite in _sprites.Values)
             {
-                sprite.Draw?.Invoke(sprite, SpriteBatch, GetPlayerShift());
+                sprite.Draw(SpriteBatch, GetPlayerShift());
             }
             SpriteBatch.End();
         }
@@ -140,8 +140,13 @@ namespace MainGame.Screens
                 {
                     var chr = gameObjects[o.Key] as Character;
                     chrSpr.Direction = chr.Direction;
+                    if ((chrSpr.State & StateCharacter.Attacking) != 0 &&
+                        (chr.State & StateCharacter.Attacking) == 0)
+                    {
+                        chrSpr.AttackNumber++;
+                        chrSpr.AttackNumber %= chrSpr.AttackCount;
+                    }
                     chrSpr.State = chr.State;
-                    chrSpr.AttackNumber = chr.AttackNumber;
                     if (o.Key == playerId)
                     {
                         if ((chr.State & StateCharacter.Dead) != 0)
@@ -149,7 +154,7 @@ namespace MainGame.Screens
                             PlayerDead?.Invoke(this, EventArgs.Empty);
                             return;
                         }
-                        (_sprites[-1] as StateSprite).SetState(chr.HealthPoints == 10 ? 10 : chr.HealthPoints % 10);
+                        (_sprites[-1] as StateSprite).CurrentState = chr.HealthPoints == 10 ? 10 : chr.HealthPoints % 10;
                     }
                 }
             }

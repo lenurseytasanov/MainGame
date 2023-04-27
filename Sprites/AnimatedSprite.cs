@@ -13,26 +13,20 @@ namespace MainGame.Sprites
     {
         public Dictionary<string, Animation> Animations { get; set; }
 
-        public AnimationManager AnimationManager { get; set; }
+        public AnimationManager AnimationManager { get; set; } = new AnimationManager();
 
         public void SetAnimation(string animationName)
         {
             AnimationManager.Play(Animations[animationName]);
         }
 
-        public virtual void Initialize()
+        public override void Draw(SpriteBatch spriteBatch, Vector2 shift)
         {
-            Animations ??= new Dictionary<string, Animation>();
-            AnimationManager ??= new AnimationManager();
-            Draw ??= (sender, spriteBatch, shift) =>
-            {
-                var o = sender as AnimatedSprite;
-                spriteBatch.Draw(
-                    o.AnimationManager.CurrentAnimation.SpriteSheet, o.Position,
-                    o.AnimationManager.CurrentFrame, Color.White,
-                    0, Vector2.Zero, o.AnimationManager.CurrentAnimation.Scale, o.AnimationManager.CurrentAnimation.Effects,
-                    0);
-            };
+            spriteBatch.Draw(
+                    AnimationManager.CurrentAnimation.SpriteSheet, Position,
+                    AnimationManager.CurrentFrame, Color.White,
+                    0, Vector2.Zero, AnimationManager.CurrentAnimation.Scale, AnimationManager.CurrentAnimation.Effects,
+                    LayerDepth);
         }
 
         public virtual void Update(GameTime gameTime)

@@ -31,24 +31,12 @@ namespace MainGame.Managers
         {
             var sprite = new CharacterSprite()
             {
-                Draw = (sender, sb, shift) =>
+                ShiftWhenFlipped = spriteId == 1 ? new Vector2(50, 0) : Vector2.Zero,
+                LayerDepth = 0.25f,
+                AttackCount = spriteId switch
                 {
-                    var sprite = sender as AnimatedSprite;
-                    sb.Draw(
-                        sprite.AnimationManager.CurrentAnimation.SpriteSheet,
-                        new Rectangle(
-                            (int)shift.X + (int)sprite.Position.X +
-                            (spriteId == 1
-                                ? (sprite.AnimationManager.CurrentAnimation.Effects ==
-                                   SpriteEffects.FlipHorizontally
-                                    ? -50
-                                    : 50)
-                                : 0),
-                            (int)shift.Y + (int)sprite.Position.Y,
-                            sprite.Size.Width, sprite.Size.Height),
-                        sprite.AnimationManager.CurrentFrame, Color.White,
-                        0, Vector2.Zero,
-                        sprite.AnimationManager.CurrentAnimation.Effects, 0.25f);
+                    1 => 3,
+                    2 => 1
                 },
                 Animations = spriteId switch
                 {
@@ -414,7 +402,6 @@ namespace MainGame.Managers
                     },
                 }
             };
-            sprite.Initialize();
             return sprite;
         }
     }
@@ -427,18 +414,7 @@ namespace MainGame.Managers
         {
             return new Sprite()
             {
-                Draw = (sender, sb, shift) =>
-                {
-                    var sprite = sender as Sprite;
-
-                    sb.Draw(sprite.Texture,
-                        new Rectangle(
-                            (int)shift.X + (int)sprite.Position.X,
-                            (int)shift.Y + (int)sprite.Position.Y,
-                            sprite.Size.Width, sprite.Size.Height),
-                        sprite.Texture.Bounds, Color.White,
-                        0, Vector2.Zero, SpriteEffects.None, 0);
-                },
+                LayerDepth = 0,
                 Texture = Content.Load<Texture2D>(spriteId switch
                 {
                     12 => "dungeon/Tiles_rock/tile2",
@@ -480,7 +456,6 @@ namespace MainGame.Managers
                     { 10, Content.Load<Texture2D>("bars/healthbar10") }
                 }
             };
-            sprite.Initialize();
             return sprite;
         }
     }
@@ -491,20 +466,10 @@ namespace MainGame.Managers
 
         public override Sprite CreateSprite(int spriteId)
         {
-            return new Sprite()
+            return new BackgroundSprite()
             {
                 Position = Vector2.Zero,
-                Draw = (sender, sb, shiftOfPlayer) =>
-                {
-                    var sprite = sender as Sprite;
-                    sb.Draw(sprite.Texture,
-                        new Rectangle(
-                            (int)sprite.Position.X,
-                            (int)sprite.Position.Y,
-                            sprite.Size.Width, sprite.Size.Height),
-                        sprite.Texture.Bounds, Color.White,
-                        0, Vector2.Zero, SpriteEffects.None, 1);
-                },
+                LayerDepth = 1,
                 Texture = Content.Load<Texture2D>("dungeon/Background/Pale/Background")
             };
         }

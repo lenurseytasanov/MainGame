@@ -12,21 +12,14 @@ namespace MainGame.Sprites
     {
         public Dictionary<int, Texture2D> States { get; set; }
 
-        public Texture2D CurrentState { get; private set; }
+        public int CurrentState { get; set; }
 
-        public void SetState(int name)
+        public override void Draw(SpriteBatch spriteBatch, Vector2 shift)
         {
-            CurrentState = States[name];
-        }
-
-        public void Initialize()
-        {
-            Draw = (sender, sb, shift) =>
-            {
-                var sprite = sender as StateSprite;
-                sb.Draw(sprite.CurrentState, sprite.Position, sprite.CurrentState.Bounds, Color.White, 
-                    0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
-            };
+            spriteBatch.Draw(States[CurrentState], 
+                Position, 
+                States[CurrentState].Bounds, Color.White, 
+                0f, Vector2.Zero, 0.5f, SpriteEffects.None, LayerDepth);
         }
     }
 }

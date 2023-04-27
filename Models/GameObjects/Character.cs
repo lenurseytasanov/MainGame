@@ -18,10 +18,6 @@ namespace MainGame.Models.GameObjects
 
         public Rectangle PhysicalBound { get; set; }
 
-        public int AttackNumber { get; set; }
-
-        public int AttackCount { get; set; }
-
         public StateCharacter State { get; set; }
 
         public Direction Direction { get; set; }

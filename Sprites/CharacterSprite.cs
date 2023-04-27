@@ -15,7 +15,31 @@ namespace MainGame.Sprites
 
         public int AttackNumber { get; set; }
 
+        public int AttackCount { get; set; }
+
         public StateCharacter State { get; set; }
+
+        public Vector2 ShiftWhenFlipped { get; set; } = Vector2.Zero;
+
+        public override void Draw(SpriteBatch spriteBatch, Vector2 shift)
+        {
+            shift.X += (AnimationManager.CurrentAnimation.Effects & SpriteEffects.FlipHorizontally) != 0
+                ? -(int)ShiftWhenFlipped.X
+                : (int)ShiftWhenFlipped.X;
+            shift.Y += (AnimationManager.CurrentAnimation.Effects & SpriteEffects.FlipVertically) != 0
+                ? -(int)ShiftWhenFlipped.Y
+                : (int)ShiftWhenFlipped.Y;
+
+            spriteBatch.Draw(
+                AnimationManager.CurrentAnimation.SpriteSheet,
+                new Rectangle(
+                    (int)shift.X + (int)Position.X,
+                    (int)shift.Y + (int)Position.Y,
+                    Size.Width, Size.Height),
+                AnimationManager.CurrentFrame, Color.White,
+                0, Vector2.Zero,
+                AnimationManager.CurrentAnimation.Effects, LayerDepth);
+        }
 
         public void SetAnimations(int spriteId)
         {
