@@ -24,7 +24,7 @@ namespace MainGame.Sprites
         {
             Animations ??= new Dictionary<string, Animation>();
             AnimationManager ??= new AnimationManager();
-            Draw ??= (sender, spriteBatch, shiftOfPlayer) =>
+            Draw ??= (sender, spriteBatch, shift) =>
             {
                 var o = sender as AnimatedSprite;
                 spriteBatch.Draw(

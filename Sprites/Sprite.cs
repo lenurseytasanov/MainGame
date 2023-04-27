@@ -16,7 +16,7 @@ namespace MainGame.Sprites
 
         public Texture2D Texture { get; set; }
 
-        public Action<object, SpriteBatch, int> Draw { get; set; } = (sender, spriteBatch, shiftOfPlayer) =>
+        public Action<object, SpriteBatch, Vector2> Draw { get; set; } = (sender, spriteBatch, shift) =>
         {
             var o = sender as Sprite;
             spriteBatch.Draw(o.Texture, o.Position, Color.White);

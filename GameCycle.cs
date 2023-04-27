@@ -7,15 +7,14 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace MainGame;
-// physic.init() -> physic.updated -> screen.Loadparams() -> enemy.loadparams() -> enemy.init() -> screen.init() - screen.loadcontent()
-// screen.update() -> screen.cyclefin -> enemy.update() -> enemy.cyclefin -> physic.update() -> physic.updated -> screen.loadparams -> enemy.loadparams
+
 public class GameCycle : Game
 {
     private readonly GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
     private Dictionary<string, Screen> _screens;
-    private Screen _currentScreen;
+    private string _currentScreen;
 
     private EnemyAI _enemyAI;
     private PhysicalModel _physic;
@@ -46,7 +45,7 @@ public class GameCycle : Game
         InitializeAI();
         InitializeScreens();
 
-        _currentScreen = _screens["MainMenu"];
+        _currentScreen = "MainMenu";
         base.Initialize();
     }
 
@@ -64,15 +63,15 @@ public class GameCycle : Game
         gamePlay.Moved += (sender, args) => _physic.Move(args.Id, args.Dir);
         gamePlay.Attacked += (sender, args) => _physic.Attack(args.Id);
         gamePlay.CycleFinished += (sender, args) => _physic.Update(args.ElapsedTime);
-        gamePlay.PlayerDead += (sender, args) => _currentScreen = _screens["GameOver"];
+        gamePlay.PlayerDead += (sender, args) => _currentScreen = "GameOver";
 
         var mainMenu = _screens["MainMenu"] as MainMenu;
-        mainMenu.Started += (sender, args) => _currentScreen = _screens["GamePlay"];
+        mainMenu.Started += (sender, args) => _currentScreen = "GamePlay";
 
         var gameOver = _screens["GameOver"] as GameOver;
         gameOver.ReStarted += (sender, args) =>
         {
-            _currentScreen = _screens["GamePlay"];
+            _currentScreen = "GamePlay";
             (_screens["GamePlay"] as GamePlay)!.Reset();
             InitializePhysic();
         };
@@ -100,9 +99,9 @@ public class GameCycle : Game
 
     protected override void Update(GameTime gameTime)
     {
-        _currentScreen.Update(gameTime);
+        _screens[_currentScreen].Update(gameTime);
         
-        if (_currentScreen == _screens["GamePlay"])
+        if (_currentScreen == "GamePlay")
             _enemyAI.Update(gameTime);
 
         base.Update(gameTime);
@@ -110,7 +109,7 @@ public class GameCycle : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        _currentScreen.Draw(gameTime);
+        _screens[_currentScreen].Draw(gameTime);
 
         base.Draw(gameTime);
     }

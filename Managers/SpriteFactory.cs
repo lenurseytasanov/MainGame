@@ -31,20 +31,20 @@ namespace MainGame.Managers
         {
             var sprite = new CharacterSprite()
             {
-                Draw = (sender, sb, shiftOfPlayer) =>
+                Draw = (sender, sb, shift) =>
                 {
                     var sprite = sender as AnimatedSprite;
                     sb.Draw(
                         sprite.AnimationManager.CurrentAnimation.SpriteSheet,
                         new Rectangle(
-                            shiftOfPlayer + (int)sprite.Position.X +
+                            (int)shift.X + (int)sprite.Position.X +
                             (spriteId == 1
                                 ? (sprite.AnimationManager.CurrentAnimation.Effects ==
                                    SpriteEffects.FlipHorizontally
                                     ? -50
                                     : 50)
                                 : 0),
-                            (int)sprite.Position.Y,
+                            (int)shift.Y + (int)sprite.Position.Y,
                             sprite.Size.Width, sprite.Size.Height),
                         sprite.AnimationManager.CurrentFrame, Color.White,
                         0, Vector2.Zero,
@@ -301,7 +301,117 @@ namespace MainGame.Managers
                                 Effects = SpriteEffects.FlipHorizontally
                             }
                         },
-                    }
+                    },
+                    3 => new Dictionary<string, Animation>()
+                    {
+                        {
+                            "IdleRight",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Shaman/Idle"), FrameCount = 5
+                            }
+                        },
+                        {
+                            "IdleLeft",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Shaman/Idle"), FrameCount = 5,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "RunRight",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Shaman/Run"), FrameCount = 6
+                            }
+                        },
+                        {
+                            "RunLeft",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Shaman/Run"), FrameCount = 6,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "JumpRight",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Shaman/Jump"), FrameCount = 6,
+                            }
+                        },
+                        {
+                            "JumpLeft",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Shaman/Jump"), FrameCount = 6,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "HurtRight",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Shaman/Hurt"), FrameCount = 2
+                            }
+                        },
+                        {
+                            "HurtLeft",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Shaman/Hurt"), FrameCount = 2,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "DeadRight",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Shaman/Dead"), FrameCount = 5,
+                                IsLooping = false
+                            }
+                        },
+                        {
+                            "DeadLeft",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Shaman/Dead"), FrameCount = 5,
+                                IsLooping = false,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "AttackRunRight",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Berserk/Run+Attack"), FrameCount = 5,
+                            }
+                        },
+                        {
+                            "AttackRunLeft",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Berserk/Run+Attack"), FrameCount = 5,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "Attack1Right",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Berserk/Attack_1"), FrameCount = 4,
+                            }
+                        },
+                        {
+                            "Attack1Left",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Berserk/Attack_1"), FrameCount = 4,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                    },
                 }
             };
             sprite.Initialize();
@@ -317,14 +427,14 @@ namespace MainGame.Managers
         {
             return new Sprite()
             {
-                Draw = (sender, sb, shiftOfPlayer) =>
+                Draw = (sender, sb, shift) =>
                 {
                     var sprite = sender as Sprite;
 
                     sb.Draw(sprite.Texture,
                         new Rectangle(
-                            shiftOfPlayer + (int)sprite.Position.X,
-                            (int)sprite.Position.Y,
+                            (int)shift.X + (int)sprite.Position.X,
+                            (int)shift.Y + (int)sprite.Position.Y,
                             sprite.Size.Width, sprite.Size.Height),
                         sprite.Texture.Bounds, Color.White,
                         0, Vector2.Zero, SpriteEffects.None, 0);

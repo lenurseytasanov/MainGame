@@ -1,8 +1,9 @@
-7 30
+8 30
                               
- P                            
-                              
-GGGG    E        GGG          
-GGGG           GGGGGG         
-GGGGGGGGGGGLLGLGGGGGGG        
+          E                   
+P                             
+       GGGG                   
+GGGG    E       GLLG          
+GGGG           GGGGGG    E    
+GGGGGGGGGGGGGGGGGGGGGG        
 GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG

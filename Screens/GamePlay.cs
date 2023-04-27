@@ -26,7 +26,7 @@ namespace MainGame.Screens
         private int WindowHeight => Game.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
         private int _playerId;
-        private Vector2 _playerPosition;
+        private Vector2 _screenCenter;
 
         private readonly Dictionary<int, int> _spriteTypeToId = new Dictionary<int, int>();
         private readonly Dictionary<int, Sprite> _sprites = new Dictionary<int, Sprite>();
@@ -39,7 +39,7 @@ namespace MainGame.Screens
 
         public override void Initialize()
         {
-            _playerPosition = new Vector2(WindowWidth / 2, 0);
+            _screenCenter = new Vector2(WindowWidth / 2, WindowHeight / 2);
         }
 
         public override void Update(GameTime gameTime)
@@ -88,14 +88,16 @@ namespace MainGame.Screens
             SpriteBatch.End();
         }
 
-        private int GetPlayerShift()
+        private Vector2 GetPlayerShift()
         {
-            var shiftOfPlayer = (int)_playerPosition.X - (int)_sprites[_playerId].Position.X;
-            if (_sprites[_playerId].Position.X < _playerPosition.X)
-                shiftOfPlayer = 0;
-            if (_sprites[_playerId].Position.X > LevelSize.Width - _playerPosition.X)
-                shiftOfPlayer = WindowWidth - LevelSize.Width;
-            return shiftOfPlayer;
+            var shift = _screenCenter - _sprites[_playerId].Position;
+            if (_sprites[_playerId].Position.X < _screenCenter.X)
+                shift.X = 0;
+            if (_sprites[_playerId].Position.X > LevelSize.Width - _screenCenter.X)
+                shift.X = WindowWidth - LevelSize.Width;
+
+            shift.Y = WindowHeight - LevelSize.Height;
+            return shift;
         }
 
         public void LoadParameters(Dictionary<int, IGameObject> gameObjects, int playerId, Rectangle levelSize)
@@ -152,49 +154,6 @@ namespace MainGame.Screens
                 }
             }
         }
-
-        //private void DrawRepeatableTexture(object sender, SpriteBatch sb)
-        //{
-        //    var sprite = sender as Sprite;
-        //    var effects = SpriteEffects.None;
-
-        //    var shiftOnPlayer = (int)_playerPosition.X - (int)_sprites[_playerId].Position.X;
-        //    var textureCols = sprite.Size.Width / sprite.Texture.Width;
-        //    var textureRows = sprite.Size.Height / sprite.Texture.Height;
-        //    for (var i = 0; i < textureCols; i++)
-        //        for (var j = 0; j < textureRows; j++)
-        //            sb.Draw(sprite.Texture,
-        //                new Rectangle(
-        //                    shiftOnPlayer + (int)sprite.Position.X + i * sprite.Texture.Width,
-        //                    (int)sprite.Position.Y + j * sprite.Texture.Height,
-        //                    sprite.Texture.Width, sprite.Texture.Height),
-        //                sprite.Texture.Bounds, Color.White,
-        //                0, Vector2.Zero, effects ^= SpriteEffects.FlipHorizontally, 1);
-
-        //    if (sprite.Size.Height % sprite.Texture.Height > 0)
-        //        for (var i = 0; i < textureCols; i++)
-        //            sb.Draw(sprite.Texture,
-        //                new Rectangle(shiftOnPlayer + (int)sprite.Position.X + i * sprite.Texture.Width, (int)sprite.Position.Y + textureRows * sprite.Texture.Height,
-        //                    sprite.Texture.Width, sprite.Size.Height - textureRows * sprite.Texture.Height),
-        //                sprite.Texture.Bounds, Color.White,
-        //                0, Vector2.Zero, effects ^= SpriteEffects.FlipHorizontally, 1);
-
-        //    if (sprite.Size.Width % sprite.Texture.Width > 0)
-        //        for (var i = 0; i < textureRows; i++)
-        //            sb.Draw(sprite.Texture,
-        //                new Rectangle(shiftOnPlayer + (int)sprite.Position.X + textureCols * sprite.Texture.Width, (int)sprite.Position.Y + i * sprite.Texture.Height,
-        //                    sprite.Size.Width - textureCols * sprite.Texture.Width, sprite.Texture.Height),
-        //                sprite.Texture.Bounds, Color.White,
-        //                0, Vector2.Zero, effects ^= SpriteEffects.FlipHorizontally, 1);
-        //    if (sprite.Size.Height % sprite.Texture.Height > 0 && sprite.Size.Width % sprite.Texture.Width > 0)
-        //        sb.Draw(sprite.Texture,
-        //        new Rectangle(shiftOnPlayer + (int)sprite.Position.X + textureCols * sprite.Texture.Width, (int)sprite.Position.Y + textureRows * sprite.Texture.Height,
-        //            sprite.Size.Width - textureCols * sprite.Texture.Width, sprite.Size.Height - textureRows * sprite.Texture.Height),
-        //        sprite.Texture.Bounds, Color.White,
-        //        0, Vector2.Zero, effects ^= SpriteEffects.FlipHorizontally, 1);
-
-        //    sprite.Position += new Vector2(sprite.Texture.Width, 0);
-        //}
 
         public event EventHandler PlayerDead;
 

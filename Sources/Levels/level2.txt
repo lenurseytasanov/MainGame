@@ -1,8 +1,9 @@
-7 13
-          E  
-             
-         GGGG
-         GGGG
-P        GGGG
-         GGGG
-GGGGGGGGGGGGG
+8 20
+                    
+                    
+                 S  
+P                   
+              S  G  
+BBBBBBBBBBBBBBGGGGGG               
+LLLLLLLLLLLLLLGGGGGG
+GGGGGGGGGGGGGGGGGGGG

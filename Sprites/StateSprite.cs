@@ -21,11 +21,11 @@ namespace MainGame.Sprites
 
         public void Initialize()
         {
-            Draw = (sender, sb, shiftOnPlayer) =>
+            Draw = (sender, sb, shift) =>
             {
                 var sprite = sender as StateSprite;
                 sb.Draw(sprite.CurrentState, sprite.Position, sprite.CurrentState.Bounds, Color.White, 
-                    0f, Vector2.Zero, 0.5f, SpriteEffects.None, 1);
+                    0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
             };
         }
     }
