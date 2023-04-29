@@ -22,15 +22,18 @@ namespace MainGame.Models.GameObjects
 
         public float Acceleration { get; set; } = 4.0f;
 
+        public float AirResistance { get; set; } = 0.6f;
+
         public float Mass { get; set; } = 1.0f;
 
         public virtual void Update(GameTime gameTime)
         {
+            Size = new Rectangle(Size.X + (int)Speed.X, Size.Y + (int)Speed.Y, Size.Width, Size.Height);
             Position += new Vector2((int)Speed.X, (int)Speed.Y);
-            Speed += Forces / Mass;
+            Speed += Mass > 0 ? Forces / Mass : Vector2.Zero;
             Forces = Vector2.Zero;
             Forces += new Vector2(0, 1f) * Mass; // gravity
-            Forces += new Vector2(-Speed.X * 0.6f, 0); // resistance
+            Forces += new Vector2(-Speed.X * AirResistance, 0); // resistance
         }
     }
 }

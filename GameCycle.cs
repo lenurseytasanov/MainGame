@@ -36,9 +36,9 @@ public class GameCycle : Game
         _physic = new PhysicalModel();
         _screens = new Dictionary<string, Screen>
         {
-            { "GamePlay", new GamePlay() { Game = this } },
-            { "MainMenu", new MainMenu() { Game = this } },
-            { "GameOver", new GameOver() { Game = this } }
+            { "GamePlay", new GamePlay(this) },
+            { "MainMenu", new MainMenu(this) },
+            { "GameOver", new GameOver(this) }
         };
 
         InitializePhysic();
@@ -84,7 +84,8 @@ public class GameCycle : Game
     private void InitializeAI()
     {
         _enemyAI.Moved += (sender, args) => _physic.Move(args.Id, args.Dir);
-        _enemyAI.Attacked += (sender, args) => _physic.Attack(args.Id);
+        _enemyAI.MeleeAttack += (sender, args) => _physic.Attack(args.Id);
+        _enemyAI.RangeAttack += (sender, args) => _physic.Shoot(args.Id);
     }
 
     protected override void LoadContent()

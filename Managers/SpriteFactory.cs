@@ -32,11 +32,12 @@ namespace MainGame.Managers
             var sprite = new CharacterSprite()
             {
                 ShiftWhenFlipped = spriteId == 1 ? new Vector2(50, 0) : Vector2.Zero,
-                LayerDepth = 0.25f,
+                LayerDepth = 0.5f,
                 AttackCount = spriteId switch
                 {
                     1 => 3,
-                    2 => 1
+                    2 => 1,
+                    3 => 1
                 },
                 Animations = spriteId switch
                 {
@@ -370,32 +371,17 @@ namespace MainGame.Managers
                             }
                         },
                         {
-                            "AttackRunRight",
+                            "AttackMagicRight",
                             new Animation()
                             {
-                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Berserk/Run+Attack"), FrameCount = 5,
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Shaman/Magic_2"), FrameCount = 6,
                             }
                         },
                         {
-                            "AttackRunLeft",
+                            "AttackMagicLeft",
                             new Animation()
                             {
-                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Berserk/Run+Attack"), FrameCount = 5,
-                                Effects = SpriteEffects.FlipHorizontally
-                            }
-                        },
-                        {
-                            "Attack1Right",
-                            new Animation()
-                            {
-                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Berserk/Attack_1"), FrameCount = 4,
-                            }
-                        },
-                        {
-                            "Attack1Left",
-                            new Animation()
-                            {
-                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Berserk/Attack_1"), FrameCount = 4,
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Shaman/Magic_2"), FrameCount = 6,
                                 Effects = SpriteEffects.FlipHorizontally
                             }
                         },
@@ -414,7 +400,7 @@ namespace MainGame.Managers
         {
             return new Sprite()
             {
-                LayerDepth = 0,
+                LayerDepth = 0.25f,
                 Texture = Content.Load<Texture2D>(spriteId switch
                 {
                     12 => "dungeon/Tiles_rock/tile2",
@@ -426,6 +412,7 @@ namespace MainGame.Managers
                     18 => "dungeon/Tiles_rock/tile6",
                     19 => "dungeon/Tiles_rock/tile12",
                     20 => "dungeon/Tiles_rock/tile13",
+                    50 => "Orc/Orc_Shaman/Fireball",
                     _ => throw new Exception("Unknown texture")
                 })
             };
@@ -441,6 +428,7 @@ namespace MainGame.Managers
             var sprite = new StateSprite()
             {
                 Position = new Vector2(20, 20),
+                LayerDepth = 0.12f,
                 States = new Dictionary<int, Texture2D>()
                 {
                     { 0, Content.Load<Texture2D>("bars/healthbar0") },

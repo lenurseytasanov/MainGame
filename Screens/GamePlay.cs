@@ -42,6 +42,8 @@ namespace MainGame.Screens
             _screenCenter = new Vector2(WindowWidth / 2, WindowHeight / 2);
         }
 
+        public GamePlay(Game game) : base(game) { }
+
         public override void Update(GameTime gameTime)
         {
             var keys = Keyboard.GetState().GetPressedKeys();

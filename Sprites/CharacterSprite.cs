@@ -83,6 +83,10 @@ namespace MainGame.Sprites
                     else if ((State & StateCharacter.Attacking) != 0)
                         SetAnimation(Direction == Direction.Right ? "AttackRunRight" : "AttackRunLeft");
                     break;
+                case 3:
+                    if ((State & StateCharacter.Attacking) != 0)
+                        SetAnimation(Direction == Direction.Right ? "AttackMagicRight" : "AttackMagicLeft");
+                    break;
             }
         }
     }

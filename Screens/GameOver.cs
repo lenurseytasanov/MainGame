@@ -11,6 +11,8 @@ namespace MainGame.Screens
 {
     public class GameOver : Screen
     {
+        public GameOver(Game game) : base(game) { }
+
         public override void Initialize()
         { }
 

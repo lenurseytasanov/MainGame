@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MainGame.Managers;
+using MainGame.Misc;
 using Microsoft.Xna.Framework;
 using MainGame.Models.GameObjects;
 
@@ -70,9 +71,24 @@ namespace MainGame.Models
             },
             'O' => new Character()
             {
+                AI = AIType.Warrior,
                 Position = new Vector2(i * _tileSize, j * _tileSize),
                 Speed = Vector2.Zero,
                 SpriteId = 2,
+                HealthPoints = 1,
+                Damage = 2,
+                Mass = 2.0f,
+                Acceleration = 2.0f,
+                PhysicalBound = new Rectangle(i * _tileSize + _tileSize * 2 / 3, j * _tileSize + _tileSize * 2 / 3, _tileSize * 2 / 3, _tileSize * 4 / 3),
+                Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize * 2, _tileSize * 2)
+            },
+            'S' => new Character()
+            {
+                AI = AIType.Ranger,
+                Cooldown = TimeSpan.FromMilliseconds(1500),
+                Position = new Vector2(i * _tileSize, j * _tileSize),
+                Speed = Vector2.Zero,
+                SpriteId = 3,
                 HealthPoints = 1,
                 Damage = 2,
                 Mass = 2.0f,

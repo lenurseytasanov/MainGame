@@ -8,11 +8,15 @@ using Microsoft.Xna.Framework;
 
 namespace MainGame.Models.GameObjects
 {
-    public class Character : DynamicObject, ISolid, IDamaging
+    public class Character : DynamicObject, ISolid, IDamaging, IControllable
     {
+        public AIType AI { get; set; }
+
         public int HealthPoints { get; set; } = 10;
 
         public int Damage { get; set; } = 2;
+
+        public TimeSpan Cooldown { get; set; } = TimeSpan.FromMilliseconds(500);
 
         public Rectangle HitBox { get; set; }
 
@@ -26,7 +30,6 @@ namespace MainGame.Models.GameObjects
 
         public override void Update(GameTime gameTime)
         {
-            Size = new Rectangle(Size.X + (int)Speed.X, Size.Y + (int)Speed.Y, Size.Width, Size.Height);
             PhysicalBound = new Rectangle(PhysicalBound.X + (int)Speed.X, PhysicalBound.Y + (int)Speed.Y, PhysicalBound.Width, PhysicalBound.Height);
             HitBox = PhysicalBound;
 
@@ -56,7 +59,7 @@ namespace MainGame.Models.GameObjects
             if ((State & StateCharacter.Attacking) != 0)
             {
                 _elapsedTime += gameTime.ElapsedGameTime;
-                if (_elapsedTime > TimeSpan.FromMilliseconds(500))
+                if (_elapsedTime > Cooldown)
                 {
                     State &= ~StateCharacter.Attacking;
                     _elapsedTime = TimeSpan.Zero;

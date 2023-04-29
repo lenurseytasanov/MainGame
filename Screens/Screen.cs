@@ -12,7 +12,12 @@ namespace MainGame.Screens
     {
         protected SpriteBatch SpriteBatch;
 
-        public Game Game { get; set; }
+        protected Game Game;
+
+        protected Screen(Game game)
+        {
+            Game = game;
+        }
 
         public abstract void Initialize();
 

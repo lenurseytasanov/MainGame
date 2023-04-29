@@ -16,19 +16,36 @@ namespace MainGame
 
         public void Update(GameTime elapsedTime)
         {
-            foreach (var o in _objects
-                         .Where(o => o.Key != _playerId && o.Value is Character)
-                         .Select(o => (o.Key, Value: o.Value as Character)))
+            foreach (var pair in _objects
+                         .Where(pair => pair.Value is IControllable)
+                         .Select(pair => (pair.Key, pair.Value as IControllable)))
             {
-                var chr = o.Value;
-                Moved?.Invoke(this,
-                    new MoveEventArgs()
-                    {
-                        Id = o.Key,
-                        Dir = chr.Position.X <= _objects[_playerId].Position.X ? Direction.Right : Direction.Left
-                    });
-                if (chr.PhysicalBound.Intersects((_objects[_playerId] as Character).PhysicalBound))
-                    Attacked?.Invoke(this, new AttackEventArgs() { Id = o.Key });
+                var obj = pair.Item2;
+                var player = _objects[_playerId] as Character;
+                switch (obj.AI)
+                {
+                    case AIType.Warrior:
+                        Moved?.Invoke(this,
+                            new MoveEventArgs()
+                            {
+                                Id = pair.Key,
+                                Dir = obj.Position.X <= player.Position.X ? Direction.Right : Direction.Left
+                            });
+                        if (obj.Size.Intersects(player.PhysicalBound))
+                            MeleeAttack?.Invoke(this, new AttackEventArgs() { Id = pair.Key });
+                        break;
+                    case AIType.Ranger:
+                        if (Vector2.Distance(obj.Position, player.Position) < 400)
+                            Moved?.Invoke(this,
+                                new MoveEventArgs()
+                                {
+                                    Id = pair.Key,
+                                    Dir = obj.Position.X <= player.Position.X ? Direction.Left : Direction.Right
+                                });
+                        else
+                            RangeAttack?.Invoke(this, new AttackEventArgs() { Id = pair.Key });
+                        break;
+                }
             }
         }
 
@@ -39,6 +56,7 @@ namespace MainGame
         }
 
         public event EventHandler<MoveEventArgs> Moved;
-        public event EventHandler<AttackEventArgs> Attacked;
+        public event EventHandler<AttackEventArgs> MeleeAttack;
+        public event EventHandler<AttackEventArgs> RangeAttack;
     }
 }

@@ -2960,6 +2960,18 @@
 /processorParam:TextureFormat=Color
 /build:Orc/Orc_Shaman/Dead.png
 
+#begin Orc/Orc_Shaman/Fireball.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Orc/Orc_Shaman/Fireball.png
+
 #begin Orc/Orc_Shaman/Hurt.png
 /importer:TextureImporter
 /processor:TextureProcessor

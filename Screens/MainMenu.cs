@@ -11,6 +11,8 @@ namespace MainGame.Screens
 {
     public class MainMenu : Screen
     {
+        public MainMenu(Game game) : base(game) { }
+
         public override void Initialize()
         { }
 
