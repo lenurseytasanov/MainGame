@@ -22,25 +22,36 @@ namespace MainGame.Models
         {
             _levels = new Dictionary<string, LevelModel>()
             {
-                { "lobby", new LevelModel() { LoadPath = "../../../Sources/Levels/lobby.txt" } },
+                { "lobby", new LevelModel() { LoadPath = "../../../Sources/Levels/lobby.txt", } },
                 { "level1", new LevelModel() { LoadPath = "../../../Sources/Levels/level1.txt" } },
-                { "level2", new LevelModel() { LoadPath = "../../../Sources/Levels/level2.txt" } }
+                { "level2", new LevelModel() { LoadPath = "../../../Sources/Levels/level2.txt" } },
+                { "level3", new LevelModel() { LoadPath = "../../../Sources/Levels/level3.txt" } },
+                { "boss", new LevelModel() { LoadPath = "../../../Sources/Levels/boss.txt" } },
             };
             _levelTransitions = new Dictionary<string, (string toLeft, string toRight)>()
             {
                 { "lobby", ("", "level1") },
                 { "level1", ("lobby", "level2") },
-                { "level2", ("level1", "") }
+                { "level2", ("level1", "level3") },
+                { "level3", ("level2", "boss") },
+                { "boss", ("level3", "") }
             };
 
             _currentLevel = "lobby";
             _levels[_currentLevel].Initialize();
 
-            Updated?.Invoke(this, new ObjectsEventArgs()
+            Updated?.Invoke(this, new LoadEventArgs()
             {
-                Objects = _levels[_currentLevel].Objects,
-                PlayerId = _levels[_currentLevel].PlayerId,
-                LevelSize = _levels[_currentLevel].LevelSize,
+                Level = _levels[_currentLevel]
+            });
+        }
+
+        public void Reset()
+        {
+            _levels[_currentLevel].Initialize();
+            Updated?.Invoke(this, new LoadEventArgs()
+            {
+                Level = _levels[_currentLevel]
             });
         }
 
@@ -66,19 +77,24 @@ namespace MainGame.Models
         public void Attack(int id)
         {
             var chr = _levels[_currentLevel].Objects[id] as Character;
-            if ((chr.State & StateCharacter.Attacking) == 0 &&
-                (chr.State & StateCharacter.Dead) == 0)
+            if (chr.AttackingTime > chr.Cooldown && (chr.State & StateCharacter.Dead) == 0)
+            {
+                chr.AttackingTime = TimeSpan.Zero;
                 chr.State |= StateCharacter.Attacking;
+            }
         }
 
         public void Shoot(int id)
         {
             var chr = _levels[_currentLevel].Objects[id] as Character;
             var player = _levels[_currentLevel].Objects[_levels[_currentLevel].PlayerId] as Character;
-            if ((chr.State & StateCharacter.Attacking) == 0 &&
+            var previousState = chr.State;
+            Attack(id);
+            if ((previousState & StateCharacter.Attacking) == 0 &&
+                (chr.State & StateCharacter.Attacking) != 0 &&
                 (chr.State & StateCharacter.Dead) == 0)
             {
-                var dir = player.Position - chr.Position;
+                var dir = player.PhysicalBound.Center.ToVector2() - chr.Position;
                 dir /= dir.Length();
                 _temporary.Add(
                     GetRandomId(),
@@ -87,33 +103,20 @@ namespace MainGame.Models
                         Position = chr.Position,
                         Speed = 10 * dir,
                         SpriteId = 50,
-                        Damage = 0,
+                        Damage = 1,
                         Mass = 0,
                         AirResistance = 0,
                         Size = new Rectangle((int)chr.Position.X, (int)chr.Position.Y, 100, 100)
                     });
             }
-            if ((chr.State & StateCharacter.Attacking) == 0 &&
-                (chr.State & StateCharacter.Dead) == 0)
-                chr.State |= StateCharacter.Attacking;
-        }
-
-        private double GetShootingAngle(Character obj1, Character obj2)
-        {
-            var S = 10;
-            var G = 1d;
-            var target = obj2.Position - obj1.Position;
-            var angle = Math.Min(
-                Math.Atan((S*S + Math.Sqrt(S*S*S*S - G * (G * target.X*target.X + 2 * S*S * target.Y))) / (G * target.X)),
-                Math.Atan((S*S - Math.Sqrt(S*S*S*S - G * (G * target.X*target.X + 2 * S*S * target.Y))) / (G * target.X)));
-            return angle;
         }
 
         private int GetRandomId()
         {
             var rnd = new Random(DateTime.Now.Millisecond);
             var id = rnd.Next(1, 1000);
-            while (_levels[_currentLevel].Objects.ContainsKey(id))
+            while (_levels[_currentLevel].Objects.ContainsKey(id) ||
+                   _temporary.ContainsKey(id))
                 id = rnd.Next(1, 1000);
             return id;
         }
@@ -179,11 +182,9 @@ namespace MainGame.Models
             }
             _temporary.Clear();
 
-            Updated?.Invoke(this, new ObjectsEventArgs()
+            Updated?.Invoke(this, new LoadEventArgs()
             {
-                Objects = _levels[_currentLevel].Objects, 
-                PlayerId = _levels[_currentLevel].PlayerId, 
-                LevelSize = _levels[_currentLevel].LevelSize
+                Level = _levels[_currentLevel]
             });
         }
 
@@ -194,7 +195,8 @@ namespace MainGame.Models
 
             character.Forces = new Vector2(0, -1) * character.Mass;
             character.Speed = new Vector2(10, 0) * (character.Speed.X > 0 ? -1 : 1);
-
+            
+            var health = character.HealthPoints;
             if (character.PhysicalBound.Right > _levels[_currentLevel].LevelSize.Width)
                 _currentLevel = _levelTransitions[_currentLevel].toRight;
             if (character.PhysicalBound.Left < 0)
@@ -202,11 +204,12 @@ namespace MainGame.Models
 
             if (_levels[_currentLevel].Objects == null)
                 _levels[_currentLevel].Initialize();
+            (_levels[_currentLevel].Objects[_levels[_currentLevel].PlayerId] as Character).HealthPoints = health;
             LevelChanged?.Invoke(this, EventArgs.Empty);
             return true;
         }
 
-        public event EventHandler<ObjectsEventArgs> Updated;
+        public event EventHandler<LoadEventArgs> Updated;
 
         public event EventHandler LevelChanged;
     }

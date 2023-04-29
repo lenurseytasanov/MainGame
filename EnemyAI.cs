@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MainGame.Misc;
+using MainGame.Models;
 using MainGame.Models.GameObjects;
 using Microsoft.Xna.Framework;
 
@@ -18,29 +19,30 @@ namespace MainGame
         {
             foreach (var pair in _objects
                          .Where(pair => pair.Value is IControllable)
-                         .Select(pair => (pair.Key, pair.Value as IControllable)))
+                         .Select(pair => (pair.Key, pair.Value as Character)))
             {
                 var obj = pair.Item2;
                 var player = _objects[_playerId] as Character;
                 switch (obj.AI)
                 {
                     case AIType.Warrior:
-                        Moved?.Invoke(this,
-                            new MoveEventArgs()
-                            {
-                                Id = pair.Key,
-                                Dir = obj.Position.X <= player.Position.X ? Direction.Right : Direction.Left
-                            });
-                        if (obj.Size.Intersects(player.PhysicalBound))
-                            MeleeAttack?.Invoke(this, new AttackEventArgs() { Id = pair.Key });
-                        break;
-                    case AIType.Ranger:
-                        if (Vector2.Distance(obj.Position, player.Position) < 400)
+                        if (Vector2.Distance(obj.HitBox.Center.ToVector2(), player.HitBox.Center.ToVector2()) > obj.HitBox.Width * 5 / 6)
                             Moved?.Invoke(this,
                                 new MoveEventArgs()
                                 {
                                     Id = pair.Key,
-                                    Dir = obj.Position.X <= player.Position.X ? Direction.Left : Direction.Right
+                                    Dir = obj.HitBox.Center.X <= player.HitBox.Center.X ? Direction.Right : Direction.Left
+                                });
+                        if (obj.HitBox.Intersects(player.HitBox))
+                            MeleeAttack?.Invoke(this, new AttackEventArgs() { Id = pair.Key });
+                        break;
+                    case AIType.Ranger:
+                        if (Vector2.Distance(obj.HitBox.Center.ToVector2(), player.HitBox.Center.ToVector2()) < 300)
+                            Moved?.Invoke(this,
+                                new MoveEventArgs()
+                                {
+                                    Id = pair.Key,
+                                    Dir = obj.HitBox.Center.X <= player.HitBox.Center.X ? Direction.Left : Direction.Right
                                 });
                         else
                             RangeAttack?.Invoke(this, new AttackEventArgs() { Id = pair.Key });
@@ -49,10 +51,10 @@ namespace MainGame
             }
         }
 
-        public void LoadParameters(Dictionary<int, IGameObject> objects, int playerId)
+        public void LoadParameters(LevelModel level)
         {
-            _objects = objects;
-            _playerId = playerId;
+            _objects = level.Objects;
+            _playerId = level.PlayerId;
         }
 
         public event EventHandler<MoveEventArgs> Moved;

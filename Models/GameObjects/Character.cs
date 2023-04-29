@@ -26,7 +26,9 @@ namespace MainGame.Models.GameObjects
 
         public Direction Direction { get; set; }
 
-        private TimeSpan _elapsedTime;
+        public TimeSpan AttackingTime { get; set; }
+
+        private TimeSpan _immunityTime;
 
         public override void Update(GameTime gameTime)
         {
@@ -48,21 +50,22 @@ namespace MainGame.Models.GameObjects
 
             if ((State & StateCharacter.Hurt) != 0)
             {
-                _elapsedTime += gameTime.ElapsedGameTime;
+                _immunityTime += gameTime.ElapsedGameTime;
 
-                if (_elapsedTime > TimeSpan.FromMilliseconds(500))
+                if (_immunityTime > TimeSpan.FromMilliseconds(500))
                 {
                     State &= ~StateCharacter.Hurt;
-                    _elapsedTime = TimeSpan.Zero;
+                    _immunityTime = TimeSpan.Zero;
                 }
             }
+
+            AttackingTime += gameTime.ElapsedGameTime;
             if ((State & StateCharacter.Attacking) != 0)
             {
-                _elapsedTime += gameTime.ElapsedGameTime;
-                if (_elapsedTime > Cooldown)
+                if (AttackingTime > TimeSpan.FromMilliseconds(500))
                 {
                     State &= ~StateCharacter.Attacking;
-                    _elapsedTime = TimeSpan.Zero;
+                    AttackingTime = TimeSpan.Zero;
                 }
             }
             if (HealthPoints == 0)

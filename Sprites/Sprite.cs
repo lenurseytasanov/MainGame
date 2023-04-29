@@ -18,6 +18,8 @@ namespace MainGame.Sprites
 
         public float LayerDepth { get; set; }
 
+        public float Rotation { get; set; } = 0;
+
         public virtual void Draw(SpriteBatch spriteBatch, Vector2 shift)
         {
             spriteBatch.Draw(Texture,
@@ -26,7 +28,7 @@ namespace MainGame.Sprites
                     (int)shift.Y + (int)Position.Y,
                     Size.Width, Size.Height),
                 Texture.Bounds, Color.White,
-                0, Vector2.Zero, SpriteEffects.None, LayerDepth);
+                Rotation, Vector2.Zero, SpriteEffects.None, LayerDepth);
         }
     }
 }

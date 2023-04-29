@@ -7,6 +7,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using MainGame.Managers;
 using MainGame.Misc;
+using MainGame.Models;
 using MainGame.Models.GameObjects;
 using MainGame.Sprites;
 using Microsoft.Xna.Framework;
@@ -20,13 +21,15 @@ namespace MainGame.Screens
     {
         private SpriteFactory _spriteFactory;
 
-        public Rectangle LevelSize { get; private set; }
+        private Rectangle _levelSize;
 
         private int WindowWidth => Game.GraphicsDevice.PresentationParameters.BackBufferWidth;
         private int WindowHeight => Game.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
         private int _playerId;
         private Vector2 _screenCenter;
+
+        private bool _screenChangingInvoked;
 
         private readonly Dictionary<int, int> _spriteTypeToId = new Dictionary<int, int>();
         private readonly Dictionary<int, Sprite> _sprites = new Dictionary<int, Sprite>();
@@ -35,6 +38,7 @@ namespace MainGame.Screens
         {
             _sprites.Clear();
             _spriteTypeToId.Clear();
+            _screenChangingInvoked = false;
         }
 
         public override void Initialize()
@@ -95,24 +99,24 @@ namespace MainGame.Screens
             var shift = _screenCenter - _sprites[_playerId].Position;
             if (_sprites[_playerId].Position.X < _screenCenter.X)
                 shift.X = 0;
-            if (_sprites[_playerId].Position.X > LevelSize.Width - _screenCenter.X)
-                shift.X = WindowWidth - LevelSize.Width;
+            if (_sprites[_playerId].Position.X > _levelSize.Width - _screenCenter.X)
+                shift.X = WindowWidth - _levelSize.Width;
 
-            shift.Y = WindowHeight - LevelSize.Height;
+            shift.Y = WindowHeight - _levelSize.Height;
             return shift;
         }
 
-        public void LoadParameters(Dictionary<int, IGameObject> gameObjects, int playerId, Rectangle levelSize)
+        public void LoadParameters(LevelModel level)
         {
-            _playerId = playerId;
-            LevelSize = levelSize;
+            _playerId = level.PlayerId;
+            _levelSize = level.LevelSize;
 
-            if (!_sprites.ContainsKey(0))
+            if (!_sprites.ContainsKey(level.BackgroundId))
             {
                 _spriteFactory = new BackgroundFactory(Game.Content);
-                var sprite = _spriteFactory.CreateSprite(0);
+                var sprite = _spriteFactory.CreateSprite(level.BackgroundId);
                 sprite.Size = new Rectangle(0, 0, WindowWidth, WindowHeight);
-                _sprites.Add(0, sprite);
+                _sprites.Add(level.BackgroundId, sprite);
             }
 
             if (!_sprites.ContainsKey(-1))
@@ -122,7 +126,14 @@ namespace MainGame.Screens
                 _sprites.Add(-1, sprite);
             }
 
-            foreach (var o in gameObjects.Where(o => !_sprites.ContainsKey(o.Key)))
+            if (level.BossId > 0 && !_sprites.ContainsKey(-2))
+            {
+                _spriteFactory = new BarsFactory(Game.Content);
+                var sprite = _spriteFactory.CreateSprite(-2);
+                _sprites.Add(-2, sprite);
+            }
+
+            foreach (var o in level.Objects.Where(o => !_sprites.ContainsKey(o.Key)))
             {
                 _spriteFactory = o.Value.SpriteId switch
                 {
@@ -132,15 +143,22 @@ namespace MainGame.Screens
                 var sprite = _spriteFactory.CreateSprite(o.Value.SpriteId);
                 _spriteTypeToId.Add(o.Key, o.Value.SpriteId);
                 _sprites.Add(o.Key, sprite);
+
+                if (o.Value.SpriteId == 50)
+                {
+                    var speed = (level.Objects[o.Key] as Fireball)!.Speed;
+                    var basic = new Vector2(1, 0);
+                    _sprites[o.Key].Rotation = (float)Math.Atan2(speed.Y - basic.Y, speed.X - basic.X) - (float)Math.PI / 2;
+                }
             }
 
-            foreach (var o in gameObjects)
+            foreach (var o in level.Objects)
             {
-                _sprites[o.Key].Position = gameObjects[o.Key].Position;
-                _sprites[o.Key].Size = gameObjects[o.Key].Size;
+                _sprites[o.Key].Position = level.Objects[o.Key].Position;
+                _sprites[o.Key].Size = level.Objects[o.Key].Size;
                 if (_sprites[o.Key] is CharacterSprite chrSpr)
                 {
-                    var chr = gameObjects[o.Key] as Character;
+                    var chr = level.Objects[o.Key] as Character;
                     chrSpr.Direction = chr.Direction;
                     if ((chrSpr.State & StateCharacter.Attacking) != 0 &&
                         (chr.State & StateCharacter.Attacking) == 0)
@@ -149,14 +167,19 @@ namespace MainGame.Screens
                         chrSpr.AttackNumber %= chrSpr.AttackCount;
                     }
                     chrSpr.State = chr.State;
-                    if (o.Key == playerId)
+                    if (o.Key == level.PlayerId)
                     {
-                        if ((chr.State & StateCharacter.Dead) != 0)
+                        if (!_screenChangingInvoked && (chr.State & StateCharacter.Dead) != 0)
                         {
                             PlayerDead?.Invoke(this, EventArgs.Empty);
+                            _screenChangingInvoked = true;
                             return;
                         }
-                        (_sprites[-1] as StateSprite).CurrentState = chr.HealthPoints == 10 ? 10 : chr.HealthPoints % 10;
+                        (_sprites[-1] as StateSprite).CurrentState = 10 * chr.HealthPoints / 10;
+                    }
+                    if (o.Key == level.BossId)
+                    {
+                        (_sprites[-2] as StateSprite).CurrentState = 10 * chr.HealthPoints / 20;
                     }
                 }
             }

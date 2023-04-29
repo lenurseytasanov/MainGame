@@ -14,12 +14,14 @@ namespace MainGame.Sprites
 
         public int CurrentState { get; set; }
 
+        public float Scale { get; set; }
+
         public override void Draw(SpriteBatch spriteBatch, Vector2 shift)
         {
             spriteBatch.Draw(States[CurrentState], 
                 Position, 
                 States[CurrentState].Bounds, Color.White, 
-                0f, Vector2.Zero, 0.5f, SpriteEffects.None, LayerDepth);
+                Rotation, Vector2.Zero, Scale, SpriteEffects.None, LayerDepth);
         }
     }
 }

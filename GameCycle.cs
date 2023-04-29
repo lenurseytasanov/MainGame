@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using MainGame.Misc;
 using MainGame.Models;
 using MainGame.Screens;
@@ -52,8 +53,8 @@ public class GameCycle : Game
     private void InitializePhysic()
     {
         _physic.LevelChanged += (sender, args) => (_screens["GamePlay"] as GamePlay)!.Reset();
-        _physic.Updated += (sender, args) => (_screens["GamePlay"] as GamePlay)!.LoadParameters(args.Objects, args.PlayerId, args.LevelSize);
-        _physic.Updated += (sender, args) => _enemyAI.LoadParameters(args.Objects, args.PlayerId);
+        _physic.Updated += (sender, args) => (_screens["GamePlay"] as GamePlay)!.LoadParameters(args.Level);
+        _physic.Updated += (sender, args) => _enemyAI.LoadParameters(args.Level);
         _physic.Initialize();
     }
 
@@ -63,7 +64,7 @@ public class GameCycle : Game
         gamePlay.Moved += (sender, args) => _physic.Move(args.Id, args.Dir);
         gamePlay.Attacked += (sender, args) => _physic.Attack(args.Id);
         gamePlay.CycleFinished += (sender, args) => _physic.Update(args.ElapsedTime);
-        gamePlay.PlayerDead += (sender, args) => _currentScreen = "GameOver";
+        gamePlay.PlayerDead += (sender, args) => ChangeScreen("GameOver");
 
         var mainMenu = _screens["MainMenu"] as MainMenu;
         mainMenu.Started += (sender, args) => _currentScreen = "GamePlay";
@@ -73,12 +74,18 @@ public class GameCycle : Game
         {
             _currentScreen = "GamePlay";
             (_screens["GamePlay"] as GamePlay)!.Reset();
-            InitializePhysic();
+            _physic.Reset();
         };
         foreach (var screen in _screens.Values)
         {
             screen.Initialize();
         }
+    }
+
+    private async Task ChangeScreen(string screen)
+    {
+        await Task.Delay(2000);
+        _currentScreen = screen;
     }
 
     private void InitializeAI()

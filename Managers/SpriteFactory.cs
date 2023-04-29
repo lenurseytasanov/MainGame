@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,12 +33,13 @@ namespace MainGame.Managers
             var sprite = new CharacterSprite()
             {
                 ShiftWhenFlipped = spriteId == 1 ? new Vector2(50, 0) : Vector2.Zero,
-                LayerDepth = 0.5f,
+                LayerDepth = spriteId == 1 ? 0.50f : 0.51f,
                 AttackCount = spriteId switch
                 {
                     1 => 3,
                     2 => 1,
-                    3 => 1
+                    3 => 1,
+                    4 => 3
                 },
                 Animations = spriteId switch
                 {
@@ -386,6 +388,131 @@ namespace MainGame.Managers
                             }
                         },
                     },
+                    4 => new Dictionary<string, Animation>()
+                    {
+                        {
+                            "IdleRight",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Idle"), FrameCount = 5,
+                            }
+                        },
+                        {
+                            "IdleLeft",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Idle"), FrameCount = 5,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "RunRight",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Walk"), FrameCount = 7,
+                            }
+                        },
+                        {
+                            "RunLeft",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Walk"), FrameCount = 7,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "JumpRight",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Jump"), FrameCount = 8,
+                            }
+                        },
+                        {
+                            "JumpLeft",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Jump"), FrameCount = 8,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "Attack1Right",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Attack_1"), FrameCount = 4,
+                            }
+                        },
+                        {
+                            "Attack1Left",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Attack_1"), FrameCount = 4,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "Attack2Right",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Attack_2"), FrameCount = 4
+                            }
+                        },
+                        {
+                            "Attack2Left",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Attack_2"), FrameCount = 4,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "Attack3Right",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Attack_3"), FrameCount = 3,
+                            }
+                        },
+                        {
+                            "Attack3Left",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Attack_3"), FrameCount = 3,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "HurtRight",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Hurt"), FrameCount = 2,
+                            }
+                        },
+                        {
+                            "HurtLeft",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Hurt"), FrameCount = 2,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                        {
+                            "DeadRight",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Dead"), FrameCount = 4,
+                                IsLooping = false
+                            }
+                        },
+                        {
+                            "DeadLeft",
+                            new Animation()
+                            {
+                                SpriteSheet = Content.Load<Texture2D>("Orc/Orc_Warrior/Dead"), FrameCount = 4,
+                                IsLooping = false,
+                                Effects = SpriteEffects.FlipHorizontally
+                            }
+                        },
+                    },
                 }
             };
             return sprite;
@@ -412,6 +539,9 @@ namespace MainGame.Managers
                     18 => "dungeon/Tiles_rock/tile6",
                     19 => "dungeon/Tiles_rock/tile12",
                     20 => "dungeon/Tiles_rock/tile13",
+                    21 => "dungeon/Details/bridge2",
+                    22 => "dungeon/Details/bridge1",
+                    23 => "dungeon/Details/bridge3",
                     50 => "Orc/Orc_Shaman/Fireball",
                     _ => throw new Exception("Unknown texture")
                 })
@@ -427,21 +557,47 @@ namespace MainGame.Managers
         {
             var sprite = new StateSprite()
             {
-                Position = new Vector2(20, 20),
-                LayerDepth = 0.12f,
-                States = new Dictionary<int, Texture2D>()
+                Position = spriteId switch
                 {
-                    { 0, Content.Load<Texture2D>("bars/healthbar0") },
-                    { 1, Content.Load<Texture2D>("bars/healthbar1") },
-                    { 2, Content.Load<Texture2D>("bars/healthbar2") },
-                    { 3, Content.Load<Texture2D>("bars/healthbar3") },
-                    { 4, Content.Load<Texture2D>("bars/healthbar4") },
-                    { 5, Content.Load<Texture2D>("bars/healthbar5") },
-                    { 6, Content.Load<Texture2D>("bars/healthbar6") },
-                    { 7, Content.Load<Texture2D>("bars/healthbar7") },
-                    { 8, Content.Load<Texture2D>("bars/healthbar8") },
-                    { 9, Content.Load<Texture2D>("bars/healthbar9") },
-                    { 10, Content.Load<Texture2D>("bars/healthbar10") }
+                    -1 => new Vector2(20, 20),
+                    -2 => new Vector2(800, 20)
+                },
+                LayerDepth = 0.12f,
+                Scale = spriteId switch
+                {
+                    -1 => 0.5f,
+                    -2 => 0.7f
+                },
+                States = spriteId switch
+                {
+                    -1 => new Dictionary<int, Texture2D>()
+                    {
+                        { 0, Content.Load<Texture2D>("bars/healthbar0") },
+                        { 1, Content.Load<Texture2D>("bars/healthbar1") },
+                        { 2, Content.Load<Texture2D>("bars/healthbar2") },
+                        { 3, Content.Load<Texture2D>("bars/healthbar3") },
+                        { 4, Content.Load<Texture2D>("bars/healthbar4") },
+                        { 5, Content.Load<Texture2D>("bars/healthbar5") },
+                        { 6, Content.Load<Texture2D>("bars/healthbar6") },
+                        { 7, Content.Load<Texture2D>("bars/healthbar7") },
+                        { 8, Content.Load<Texture2D>("bars/healthbar8") },
+                        { 9, Content.Load<Texture2D>("bars/healthbar9") },
+                        { 10, Content.Load<Texture2D>("bars/healthbar10") }
+                    },
+                    -2 => new Dictionary<int, Texture2D>()
+                    {
+                        { 0, Content.Load<Texture2D>("bars/Boss/healthbar0") },
+                        { 1, Content.Load<Texture2D>("bars/Boss/healthbar1") },
+                        { 2, Content.Load<Texture2D>("bars/Boss/healthbar2") },
+                        { 3, Content.Load<Texture2D>("bars/Boss/healthbar3") },
+                        { 4, Content.Load<Texture2D>("bars/Boss/healthbar4") },
+                        { 5, Content.Load<Texture2D>("bars/Boss/healthbar5") },
+                        { 6, Content.Load<Texture2D>("bars/Boss/healthbar6") },
+                        { 7, Content.Load<Texture2D>("bars/Boss/healthbar7") },
+                        { 8, Content.Load<Texture2D>("bars/Boss/healthbar8") },
+                        { 9, Content.Load<Texture2D>("bars/Boss/healthbar9") },
+                        { 10, Content.Load<Texture2D>("bars/Boss/healthbar10") }
+                    }
                 }
             };
             return sprite;
@@ -458,7 +614,11 @@ namespace MainGame.Managers
             {
                 Position = Vector2.Zero,
                 LayerDepth = 1,
-                Texture = Content.Load<Texture2D>("dungeon/Background/Pale/Background")
+                Texture = Content.Load<Texture2D>(spriteId switch
+                {
+                    -10 => "dungeon/Background/Pale/Background",
+                    _ => throw new Exception("Unknown texture")
+                })
             };
         }
     }

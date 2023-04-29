@@ -25,6 +25,8 @@ namespace MainGame.Models
 
         public Dictionary<int, IGameObject> Objects { get; private set; }
         public int PlayerId { get; private set; }
+        public int BackgroundId { get; set; } = -10;
+        public int BossId { get; private set; }
 
         public Rectangle LevelSize => new Rectangle(0, 0, _columns * _tileSize, _rows * _tileSize);
 
@@ -51,6 +53,9 @@ namespace MainGame.Models
                     if (_tiles[r, c] == 'P')
                         PlayerId = currentId;
 
+                    if (_tiles[r, c] == 'W')
+                        BossId = currentId;
+
                     Objects.Add(currentId, GetObject(_tiles[r, c], c, r));
                     currentId++;
                 }
@@ -75,7 +80,7 @@ namespace MainGame.Models
                 Position = new Vector2(i * _tileSize, j * _tileSize),
                 Speed = Vector2.Zero,
                 SpriteId = 2,
-                HealthPoints = 1,
+                HealthPoints = 2,
                 Damage = 2,
                 Mass = 2.0f,
                 Acceleration = 2.0f,
@@ -89,12 +94,26 @@ namespace MainGame.Models
                 Position = new Vector2(i * _tileSize, j * _tileSize),
                 Speed = Vector2.Zero,
                 SpriteId = 3,
-                HealthPoints = 1,
-                Damage = 2,
-                Mass = 2.0f,
-                Acceleration = 2.0f,
+                HealthPoints = 2,
+                Damage = 0,
+                Mass = 1.0f,
+                Acceleration = 3.0f,
                 PhysicalBound = new Rectangle(i * _tileSize + _tileSize * 2 / 3, j * _tileSize + _tileSize * 2 / 3, _tileSize * 2 / 3, _tileSize * 4 / 3),
                 Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize * 2, _tileSize * 2)
+            },
+            'W' => new Character()
+            {
+                AI = AIType.Warrior,
+                Cooldown = TimeSpan.FromMilliseconds(2000),
+                Position = new Vector2(i * _tileSize, j * _tileSize),
+                Speed = Vector2.Zero,
+                SpriteId = 4,
+                HealthPoints = 20,
+                Damage = 2,
+                Mass = 3.0f,
+                Acceleration = 2.0f,
+                PhysicalBound = new Rectangle(i * _tileSize + _tileSize * 5 / 3, j * _tileSize + _tileSize * 5 / 3, _tileSize * 5 / 3, _tileSize * 10 / 3),
+                Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize * 5, _tileSize * 5)
             },
             'L' => new Lava()
             {
@@ -109,8 +128,24 @@ namespace MainGame.Models
                 SpriteId = GetGroundStateId(sign, i, j),
                 PhysicalBound = new Rectangle(i * _tileSize, j * _tileSize + _tileSize / 4, _tileSize, _tileSize * 3 / 4),
                 Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize, _tileSize)
+            },
+            'B' => new Ground()
+            {
+                Position = new Vector2(i * _tileSize, j * _tileSize),
+                SpriteId = GetBridgeStateId(sign, i, j),
+                PhysicalBound = new Rectangle(i * _tileSize, j * _tileSize + _tileSize * 4 / 5, _tileSize, _tileSize / 5),
+                Size = new Rectangle(i * _tileSize, j * _tileSize, _tileSize, _tileSize)
             }
         };
+
+        private int GetBridgeStateId(char bridge, int c, int r)
+        {
+            if (c > 0 && _tiles[r, c - 1] == 'G')
+                return 22;
+            if (c < _columns - 1 && _tiles[r, c + 1] == 'G')
+                return 23;
+            return 21;
+        }
 
         private int GetGroundStateId(char ground, int c, int r)
         {

@@ -1,9 +1,9 @@
-8 20
-                    
-                    
-                 S  
-P                   
-              S  G  
-BBBBBBBBBBBBBBGGGGGG               
-LLLLLLLLLLLLLLGGGGGG
-GGGGGGGGGGGGGGGGGGGG
+﻿8 25
+                   S       
+                         
+                   B       
+P                  S      
+                         
+GB  B BB  B  BB B  BBBBBG     
+GLLLLLLLLLLLLLLLLLLLLLLLG               
+GGGGGGGGGGGGGGGGGGGGGGGGG
