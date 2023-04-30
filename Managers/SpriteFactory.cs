@@ -572,31 +572,31 @@ namespace MainGame.Managers
                 {
                     -1 => new Dictionary<int, Texture2D>()
                     {
-                        { 0, Content.Load<Texture2D>("bars/healthbar0") },
-                        { 1, Content.Load<Texture2D>("bars/healthbar1") },
-                        { 2, Content.Load<Texture2D>("bars/healthbar2") },
-                        { 3, Content.Load<Texture2D>("bars/healthbar3") },
-                        { 4, Content.Load<Texture2D>("bars/healthbar4") },
-                        { 5, Content.Load<Texture2D>("bars/healthbar5") },
-                        { 6, Content.Load<Texture2D>("bars/healthbar6") },
-                        { 7, Content.Load<Texture2D>("bars/healthbar7") },
-                        { 8, Content.Load<Texture2D>("bars/healthbar8") },
-                        { 9, Content.Load<Texture2D>("bars/healthbar9") },
-                        { 10, Content.Load<Texture2D>("bars/healthbar10") }
+                        { 0, Content.Load<Texture2D>("Bars/Player/healthbar0") },
+                        { 1, Content.Load<Texture2D>("Bars/Player/healthbar1") },
+                        { 2, Content.Load<Texture2D>("Bars/Player/healthbar2") },
+                        { 3, Content.Load<Texture2D>("Bars/Player/healthbar3") },
+                        { 4, Content.Load<Texture2D>("Bars/Player/healthbar4") },
+                        { 5, Content.Load<Texture2D>("Bars/Player/healthbar5") },
+                        { 6, Content.Load<Texture2D>("Bars/Player/healthbar6") },
+                        { 7, Content.Load<Texture2D>("Bars/Player/healthbar7") },
+                        { 8, Content.Load<Texture2D>("Bars/Player/healthbar8") },
+                        { 9, Content.Load<Texture2D>("Bars/Player/healthbar9") },
+                        { 10, Content.Load<Texture2D>("Bars/Player/healthbar10") }
                     },
                     -2 => new Dictionary<int, Texture2D>()
                     {
-                        { 0, Content.Load<Texture2D>("bars/Boss/healthbar0") },
-                        { 1, Content.Load<Texture2D>("bars/Boss/healthbar1") },
-                        { 2, Content.Load<Texture2D>("bars/Boss/healthbar2") },
-                        { 3, Content.Load<Texture2D>("bars/Boss/healthbar3") },
-                        { 4, Content.Load<Texture2D>("bars/Boss/healthbar4") },
-                        { 5, Content.Load<Texture2D>("bars/Boss/healthbar5") },
-                        { 6, Content.Load<Texture2D>("bars/Boss/healthbar6") },
-                        { 7, Content.Load<Texture2D>("bars/Boss/healthbar7") },
-                        { 8, Content.Load<Texture2D>("bars/Boss/healthbar8") },
-                        { 9, Content.Load<Texture2D>("bars/Boss/healthbar9") },
-                        { 10, Content.Load<Texture2D>("bars/Boss/healthbar10") }
+                        { 0, Content.Load<Texture2D>("Bars/Boss/healthbar0") },
+                        { 1, Content.Load<Texture2D>("Bars/Boss/healthbar1") },
+                        { 2, Content.Load<Texture2D>("Bars/Boss/healthbar2") },
+                        { 3, Content.Load<Texture2D>("Bars/Boss/healthbar3") },
+                        { 4, Content.Load<Texture2D>("Bars/Boss/healthbar4") },
+                        { 5, Content.Load<Texture2D>("Bars/Boss/healthbar5") },
+                        { 6, Content.Load<Texture2D>("Bars/Boss/healthbar6") },
+                        { 7, Content.Load<Texture2D>("Bars/Boss/healthbar7") },
+                        { 8, Content.Load<Texture2D>("Bars/Boss/healthbar8") },
+                        { 9, Content.Load<Texture2D>("Bars/Boss/healthbar9") },
+                        { 10, Content.Load<Texture2D>("Bars/Boss/healthbar10") }
                     }
                 }
             };
@@ -616,7 +616,8 @@ namespace MainGame.Managers
                 LayerDepth = 1,
                 Texture = Content.Load<Texture2D>(spriteId switch
                 {
-                    -10 => "dungeon/Background/Pale/Background",
+                    -10 => "Backgrounds/cave",
+                    -11 => "Backgrounds/graveyard",
                     _ => throw new Exception("Unknown texture")
                 })
             };

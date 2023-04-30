@@ -39,7 +39,8 @@ public class GameCycle : Game
         {
             { "GamePlay", new GamePlay(this) },
             { "MainMenu", new MainMenu(this) },
-            { "GameOver", new GameOver(this) }
+            { "GameOver", new GameOver(this) },
+            { "Victory", new Victory(this) }
         };
 
         InitializePhysic();
@@ -65,6 +66,7 @@ public class GameCycle : Game
         gamePlay.Attacked += (sender, args) => _physic.Attack(args.Id);
         gamePlay.CycleFinished += (sender, args) => _physic.Update(args.ElapsedTime);
         gamePlay.PlayerDead += (sender, args) => ChangeScreen("GameOver");
+        gamePlay.BossDead += (sender, args) => ChangeScreen("Victory");
 
         var mainMenu = _screens["MainMenu"] as MainMenu;
         mainMenu.Started += (sender, args) => _currentScreen = "GamePlay";

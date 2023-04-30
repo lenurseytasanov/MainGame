@@ -22,7 +22,7 @@ namespace MainGame.Models
         {
             _levels = new Dictionary<string, LevelModel>()
             {
-                { "lobby", new LevelModel() { LoadPath = "../../../Sources/Levels/lobby.txt", } },
+                { "lobby", new LevelModel() { LoadPath = "../../../Sources/Levels/lobby.txt", BackgroundId = -11 } },
                 { "level1", new LevelModel() { LoadPath = "../../../Sources/Levels/level1.txt" } },
                 { "level2", new LevelModel() { LoadPath = "../../../Sources/Levels/level2.txt" } },
                 { "level3", new LevelModel() { LoadPath = "../../../Sources/Levels/level3.txt" } },
@@ -129,7 +129,8 @@ namespace MainGame.Models
 
                 if (dynamic is not Character character) continue;
 
-                if (IsLevelChanged(character))
+                var player = _levels[_currentLevel].Objects[_levels[_currentLevel].PlayerId] as Character;
+                if (character.Equals(player) && IsLevelChanged(character))
                     break;
 
                 var flying = true;
@@ -163,7 +164,6 @@ namespace MainGame.Models
                 {
                     if (damaging is Character chr1 && (chr1.State & StateCharacter.Attacking) == 0)
                         continue;
-                    var player = _levels[_currentLevel].Objects[_levels[_currentLevel].PlayerId] as Character;
                     if (!(damaging.Equals(player) || !damaging.Equals(player) && character.Equals(player)))
                         continue;
 

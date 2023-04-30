@@ -40,11 +40,22 @@ namespace MainGame.Screens
 
             SpriteBatch.Begin();
 
+            var font1 = Game.Content.Load<SpriteFont>("Fonts/font1");
+            var font2 = Game.Content.Load<SpriteFont>("Fonts/font2");
+            var message1 = "You're dead!";
+            var message2 = "Press \"R\" to restart";
             SpriteBatch.DrawString(
-                Game.Content.Load<SpriteFont>("fonts/font"),
-                "Press \"R\" to start",
+                font2,
+                message1,
                 new Vector2(
-                    Game.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 100,
+                    Game.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - font2.MeasureString(message1).X / 2,
+                    Game.GraphicsDevice.PresentationParameters.BackBufferHeight / 4),
+                Color.Black);
+            SpriteBatch.DrawString(
+                font1,
+                message2,
+                new Vector2(
+                    Game.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - font1.MeasureString(message2).X / 2,
                     Game.GraphicsDevice.PresentationParameters.BackBufferHeight / 2),
                 Color.Black);
 

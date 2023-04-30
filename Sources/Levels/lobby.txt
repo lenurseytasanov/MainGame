@@ -1,8 +1,11 @@
-﻿7 15
-G              
-G              
-G              
-G              
-G      P       
-G              
-GGGGGGGGGGGGGGG
+﻿10 30
+                            GG
+                            GG
+                            GG
+                             G
+                              
+                              
+                 P           G
+                            GG
+LLLLLLLLLLLLLLLLGGGGGGGGGGGGGG
+GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG

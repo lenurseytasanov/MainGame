@@ -173,12 +173,16 @@ namespace MainGame.Screens
                         {
                             PlayerDead?.Invoke(this, EventArgs.Empty);
                             _screenChangingInvoked = true;
-                            return;
                         }
                         (_sprites[-1] as StateSprite).CurrentState = 10 * chr.HealthPoints / 10;
                     }
                     if (o.Key == level.BossId)
                     {
+                        if (!_screenChangingInvoked && (chr.State & StateCharacter.Dead) != 0)
+                        {
+                            BossDead?.Invoke(this, EventArgs.Empty);
+                            _screenChangingInvoked = true;
+                        }
                         (_sprites[-2] as StateSprite).CurrentState = 10 * chr.HealthPoints / 20;
                     }
                 }
@@ -186,6 +190,8 @@ namespace MainGame.Screens
         }
 
         public event EventHandler PlayerDead;
+
+        public event EventHandler BossDead;
 
         public event EventHandler<AttackEventArgs> Attacked; 
 
